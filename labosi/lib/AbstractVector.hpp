@@ -7,60 +7,57 @@
 * @author Ivan Jurin
 * @version 1.0 12/03/15
 */
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef ABSTRACT_VECTOR_H_
+#define ABSTRACT_VECTOR_H_
 
 #include <vector>
 
-#endif
 
 #include "IVector.hpp"
 
 class AbstractVector : public IVector {
 public:
-    virtual double get(int) = 0;
+    virtual double get(const int) const = 0;
 
-    virtual IVector * set(int, double) = 0;
+    virtual IVector & set(const int, const double) const = 0;
 
-    virtual int getDimension() = 0;
+    virtual int getDimension() const = 0;
 
-    virtual IVector * copy() = 0;
+    virtual IVector copy() const = 0;
 
-    virtual IVector * newInstance(int) = 0;
+    virtual IVector newInstance(const int) const = 0;
 
-    IVector * copyPart(int);
+    IVector copyPart(const int) const;
 
-    IVector * add(IVector&);
+    const IVector & add(const IVector&);
 
-    IVector * nAdd(IVector&);
+    IVector nAdd(const IVector&) const;
 
-    IVector * sub(IVector&);
+    const IVector & sub(const IVector&);
 
-    IVector * nSub(IVector&);
+    IVector nSub(const IVector&) const;
 
-    IVector * scalarMultiply(double);
+    const IVector & scalarMultiply(const double);
 
-    IVector * nScalarMultiply(double);
+    IVector nScalarMultiply(const double) const;
 
-    /*
-    double norm();
+    double norm() const;
 
-    IVector normalize();
+    IVector & normalize() const;
 
-    double cosine(IVector&);
+    double cosine(const IVector&) const;
 
-    double scalarProduct(IVector&);
+    double scalarProduct(const IVector&) const;
 
-    IVector nVectorProduct(IVector&);
-    */
+    IVector nVectorProduct(const IVector&) const;
 
-    IVector * nFromHomogeneous();
+    IVector nFromHomogeneous() const;
 
-    /*
-    IMatrix toRowMatrix(bool);
+    IMatrix toRowMatrix(const bool) const;
 
-    IMatrix toColumnMatrix(bool);
+    IMatrix toColumnMatrix(const bool) const;
 
-    std::vector<double> toArray();
-    */
+    std::vector<double> toArray() const;
 };
+
+#endif

@@ -7,10 +7,10 @@
 * @author Ivan Jurin
 * @version 1.0 12/03/15
 */
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef I_VECTOR_H_
+#define I_VECTOR_H_
+
 #include <vector>
-#endif
 
 #include "IMatrix.hpp"
 
@@ -19,91 +19,89 @@ public:
     /*
     * Gets vector element at given index
     */
-    virtual double get(int) = 0;
+    virtual double get(const int) const = 0;
 
     /*
     * sets vector element at given index
     */
-    virtual IVector * set(int, double) = 0;
+    virtual const IVector & set(const int,const double) = 0;
 
     /*
     * gets vector dimension
     */
-    virtual int getDimension() = 0;
+    virtual int getDimension() const = 0;
 
     /*
     * copies vector to a new instance
     */
-    virtual IVector * copy() = 0;
+    virtual IVector copy() const = 0;
 
     /*
     * copies first N vector elements
     * if N >= vector dimension, zeroes the rest of elements
     */
-    virtual IVector * copyPart(int) = 0;
+    virtual IVector copyPart(const int) const = 0;
 
     /*
     * creates a new instance of vector with given dimension
     */
-    virtual IVector * newInstance(int) = 0;
+    virtual IVector newInstance(const int) const = 0;
 
     /*
     * adds given vector to this vector
     * throws exception if vectors dimensions do not match
     */
-    virtual IVector * add(IVector&) = 0;
+    virtual const IVector & add(const IVector&) = 0;
 
     /*
     * add to a new vector
     * see add
     */
-    virtual IVector * nAdd(IVector&) = 0;
+    virtual IVector nAdd(const IVector&) const = 0;
 
     /*
     * subtracts given vector from this vector
     * throws exception if vectors dimensions do not match
     */
-    virtual IVector * sub(IVector&) = 0;
+    virtual const IVector & sub(const IVector&) = 0;
 
     /*
     * sub to a new vector
     * see sub
     */
-    virtual IVector * nSub(IVector&) = 0;
+    virtual IVector nSub(const IVector&) const= 0;
 
     /*
     * multiplies vector with given scalar
     */
-    virtual IVector * scalarMultiply(double) = 0;
+    virtual const IVector & scalarMultiply(const double) = 0;
 
     /*
     * scalarMultiply to a new vector
     * see scalarMultiply
     */
-    virtual IVector * nScalarMultiply(double) = 0;
+    virtual IVector nScalarMultiply(const double) const = 0;
 
-    /*
-    virtual double norm() = 0;
+    virtual double norm() const = 0;
 
-    virtual IVector normalize() = 0;
+    virtual const IVector & normalize() const = 0;
 
-    virtual double cosine(IVector&) = 0;
+    virtual double cosine(const IVector&) const = 0;
 
-    virtual double scalarProduct(IVector&) = 0;
+    virtual double scalarProduct(const IVector&) const = 0;
 
-    virtual IVector nVectorProduct(IVector&) = 0;
-*/
+    virtual IVector nVectorProduct(const IVector&) const = 0;
 
     /*
     * creates new vector from this as homogeneous
     */
-    virtual IVector nFromHomogeneous() = 0;
+    virtual IVector nFromHomogeneous() const = 0;
 
-    /*
-    virtual IMatrix toRowMatrix(bool) = 0;
+    virtual IMatrix toRowMatrix(const bool) const = 0;
 
-    virtual IMatrix toColumnMatrix(bool) = 0;
+    virtual IMatrix toColumnMatrix(const bool) const = 0;
 
-    virtual std::vector<double> toArray() = 0;
-    */
+    virtual std::vector<double> toArray() const = 0;
 };
+
+#endif

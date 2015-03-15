@@ -7,88 +7,93 @@
 * @author Ivan Jurin
 * @version 1.0 12/03/15
 */
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef VECTOR_H_
+#define VECTOR_H_
 
 #include <vector>
-
-#endif
-
-#ifndef STDEXCEPT_H
-#define STDEXCEPT_H
-
-#include <stdexcept>
-
-#endif
-
+#include <string>
 #include "AbstractVector.hpp"
+
+#define VECTOR_H_READONLY_DEFAULT false
+#define VECTOR_H_IMMUTABLE_DEFAULT true
+
+using std::vector;
 
 class Vector : public AbstractVector {
 private:
-    std::vector<double> *elements;
+    vector<double> elements;
     int dimension;
-    bool readOnly = false;
+    bool readOnly;
+
+    /*
+    * copy constructor
+    */
+    Vector(const Vector& initial)
+            : Vector(initial.readOnly, VECTOR_H_IMMUTABLE_DEFAULT, initial.elements) {
+
+    }
+
 public:
-    Vector::Vector(std::vector<double>& inputArray)
+
+    /*
+    * constructor which takes three values:
+    *   - is vector readonly
+    *   - ignored option, vector is always copied (instructions unclear)
+    *   - array to be initialized with
+    */
+    Vector(const bool readOnly, const bool inputImmutable, const vector<double>& inputArray)
             : dimension((int) inputArray.size()),
-              elements(new std::vector<double>(inputArray)) {
+              elements(inputArray),
+              readOnly(readOnly) {
     }
 
-    Vector(bool readOnly, bool inputImmutable, std::vector<double>& inputArray)
-            : readOnly(readOnly),
-              elements(inputImmutable ? new std::vector<double>(inputArray) : &inputArray) {
+    /*
+    * constructor which takes one value:
+    *   - array to be initialized with
+    * other options default to defined values
+    */
+    Vector::Vector(const vector<double>& inputArray)
+            : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, inputArray) {
     }
 
-    double get(int idx) {
-        return (*elements)[idx];
-    };
-
-    IVector *set(int idx, double value) {
-        return readOnly ? (throw std::runtime_error("vector is readonly")) : (*elements)[idx] = value;
-    };
-
-    int getDimension() {
-        return dimension;
-    };
-
-    IVector *copy() {
-        return new Vector(readOnly, true, *elements);
-    };
-
-    IVector *newInstance(int dimension) {
-        return new Vector(*(new std::vector<double>(dimension, 0)));
+    /*
+    * gets vector element at given index
+    */
+    double get(const int idx) const {
+        return elements[idx];
     };
 
     /*
-    IVector copyPart(int dimension){return AbstractVector::copyPart(dimension);};
+    * if vector is not readonly sets value at given index, else throws exception
+    */
+    const IVector& set(const int, const double);
 
-    IVector add(IVector& other){return AbstractVector::add(other)};
+    /*
+    * gets vector dimension
+    */
+    int getDimension() const {
+        return dimension;
+    };
 
-    IVector nAdd(IVector& other){AbstractVector::nAdd()};
+    /*
+    * creates copy of this vector
+    */
+    IVector copy() const {
+        return Vector(*this);
+    };
 
-    IVector sub(IVector&);
+    /*
+    * creates new instance of Vector with given dimension
+    */
+    IVector newInstance(const int dimension) const {
+        return Vector(vector<double>((unsigned int) dimension));
+    }
 
-    IVector nSub(IVector&);
-
-    IVector scalarMultiply(double);
-
-    IVector nScalarMultiply(double);
-
-    double norm();
-
-    IVector normalize();
-
-    double cosine(IVector&);
-
-    double scalarProduct(IVector&);
-
-    IVector nVectorProduct(IVector&);
-
-    IVector nFromHomogeneous();
-
-    IMatrix toRowMatrix(bool);
-
-    IMatrix toColumnMatrix(bool);
-
-    std::vector<double> toArray();*/
+    /*
+    * creates new instance of Vector with given string
+    */
+    static Vector parseSimple(const std::string);
 };
+
+#endif
+
