@@ -72,7 +72,7 @@ double AbstractVector::norm() const {
     return 0;
 }
 
-IVector & AbstractVector::normalize() const {
+IVector const & AbstractVector::normalize() {
     return <#initializer#>;
 }
 

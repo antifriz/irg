@@ -11,12 +11,12 @@
 #define ABSTRACT_VECTOR_H_
 
 #include <vector>
-
-
 #include "IVector.hpp"
 
 class AbstractVector : public IVector {
 public:
+    AbstractVector(){};
+
     virtual double get(const int) const = 0;
 
     virtual IVector & set(const int, const double) const = 0;
@@ -43,7 +43,7 @@ public:
 
     double norm() const;
 
-    IVector & normalize() const;
+    const IVector & normalize();
 
     double cosine(const IVector&) const;
 

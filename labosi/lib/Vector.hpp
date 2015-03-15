@@ -30,7 +30,6 @@ private:
     */
     Vector(const Vector& initial)
             : Vector(initial.readOnly, VECTOR_H_IMMUTABLE_DEFAULT, initial.elements) {
-
     }
 
 public:
@@ -61,7 +60,7 @@ public:
     */
     double get(const int idx) const {
         return elements[idx];
-    };
+    }
 
     /*
     * if vector is not readonly sets value at given index, else throws exception
@@ -73,14 +72,14 @@ public:
     */
     int getDimension() const {
         return dimension;
-    };
+    }
 
     /*
     * creates copy of this vector
     */
     IVector copy() const {
         return Vector(*this);
-    };
+    }
 
     /*
     * creates new instance of Vector with given dimension
