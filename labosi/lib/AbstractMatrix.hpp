@@ -1,6 +1,6 @@
 /*
 * IRG VJ 1
-* AbstractVector.hpp
+* AbstractMatrix.hpp
 *
 * Abstract class AbstracMatrix declaration, declares common matrix methods
 *
@@ -11,9 +11,10 @@
 #define ABSTRACT_MATRIX_H_
 
 #include <vector>
+#include <string>
 #include "IMatrix.hpp"
 
-class AbstractMatrix {
+class AbstractMatrix : public IMatrix {
 public:
     virtual int getRowsCount() const = 0;
 
@@ -50,6 +51,11 @@ public:
     virtual std::vector<std::vector<double>> toArray() const;
 
     virtual IVector toVector(const bool) const;
+
+
+    virtual std::string toString() const;
+
+    virtual std::string toString(const int) const;
 };
 
 #endif
