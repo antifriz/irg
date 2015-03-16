@@ -9,9 +9,10 @@
 */
 #include <string>
 #include <sstream>
+#include <stdlib.h>
 #include "Vector.hpp"
 
-const IVector& Vector::set(const int idx, const double value) {
+const IVector &Vector::set(const int idx, const double value) {
     if (this->readOnly)
         throw "calling Vector::set() on readOnly vector is forbidden";
     elements[idx] = value;
@@ -37,3 +38,4 @@ Vector Vector::parseSimple(const std::string str) {
 
     return Vector(values);
 }
+

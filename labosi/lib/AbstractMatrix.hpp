@@ -29,7 +29,6 @@ public:
     virtual IMatrix newInstance(const int, const int) const = 0;
 
 
-
     virtual IMatrix nTranspose(const bool) const;
 
     virtual const IMatrix &add(const IMatrix &);

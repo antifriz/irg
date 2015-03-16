@@ -18,45 +18,38 @@ using std::vector;
 
 class MatrixSubMatrixView : public AbstractMatrix {
 protected:
-    IMatrix& original;
-
-    vector<int> rowIndexes;
-    vector<int> colIndexes;
-
-    MatrixSubMatrixView(const MatrixSubMatrixView& matrix)
-            : original(matrix.original),rowIndexes(matrix.rowIndexes),colIndexes(matrix.colIndexes) {
-    }
-
-
-    MatrixSubMatrixView(const IMatrix& original, vector<int> cols, vector<int> rows)
-            : original(original), rowIndexes(rows), colIndexes(cols) {
-    }
-
+    IMatrix &original;
+    int excludedRow;
+    int excludedCol;
 
 public:
-    MatrixSubMatrixView(const IMatrix& original, int excludingCol, int excludingRow);
-
+    MatrixSubMatrixView(const IMatrix &original, const int excludedCol, const int excludedRow)
+            : original(original), excludedRow(excludedRow), excludedCol(excludedCol) {
+    }
     virtual int getRowsCount() const {
-        return (int) this->rowIndexes.size();
+        return this->original.getRowsCount() - 1;
     }
 
     virtual int getColsCount() const {
-        return (int) this->colIndexes.size();
+        return this->original.getColsCount() - 1;
     }
 
-    virtual double get(const int col, const int row) const;
 
-    virtual const IMatrix& set(const int, const int, const double);
+    virtual double get(const int, const int) const;
 
-    virtual IMatrix copy() const {
-        return MatrixSubMatrixView(*this);
+    virtual const IMatrix &set(const int, const int, const double);
+
+
+    virtual IMatrix copy() const;
+
+    virtual IMatrix newInstance(const int col, const int row) const {
+        return this->original.newInstance(col, row);
     };
 
-    virtual IMatrix newInstance(const int, const int) const;
 
-    virtual IMatrix subMatrix(const int, const int,const bool) const;
-
-    virtual std::vector<std::vector<double>> toArray();
+    virtual IMatrix subMatrix(const int col, const int row, const bool liveView) const {
+        return this->copy().subMatrix(col, row, liveView).copy();
+    }
 };
 
 #endif

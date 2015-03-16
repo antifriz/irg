@@ -24,26 +24,18 @@ private:
     vector<double> elements;
     int dimension;
     bool readOnly;
-
-    /*
-    * copy constructor
-    */
-    Vector(const Vector& initial)
-            : Vector(initial.readOnly, VECTOR_H_IMMUTABLE_DEFAULT, initial.elements) {
-    }
-
 public:
 
     /*
     * constructor which takes three values:
     *   - is vector readonly
-    *   - ignored option, vector is always copied (instructions unclear)
+    *   - can array be passed by reference // it is ignored so vector always copies input
     *   - array to be initialized with
     */
-    Vector(const bool readOnly, const bool inputImmutable, const vector<double>& inputArray)
+    Vector::Vector(const bool readOnly, const bool inputImmutable, const vector<double> &inputArray)
             : dimension((int) inputArray.size()),
-              elements(inputArray),
-              readOnly(readOnly) {
+              readOnly(readOnly),
+              elements(inputArray) {
     }
 
     /*
@@ -51,9 +43,10 @@ public:
     *   - array to be initialized with
     * other options default to defined values
     */
-    Vector::Vector(const vector<double>& inputArray)
-            : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, inputArray) {
+    Vector::Vector(const vector<double> &initializerVector)
+            : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, initializerVector) {
     }
+
 
     /*
     * gets vector element at given index
@@ -65,7 +58,8 @@ public:
     /*
     * if vector is not readonly sets value at given index, else throws exception
     */
-    const IVector& set(const int, const double);
+    const IVector &set(const int, const double);
+
 
     /*
     * gets vector dimension
@@ -74,11 +68,12 @@ public:
         return dimension;
     }
 
+
     /*
     * creates copy of this vector
     */
     IVector copy() const {
-        return Vector(*this);
+        return Vector(readOnly, true, this->elements);
     }
 
     /*
@@ -88,10 +83,12 @@ public:
         return Vector(vector<double>((unsigned int) dimension));
     }
 
+
     /*
     * creates new instance of Vector with given string
     */
     static Vector parseSimple(const std::string);
+
 };
 
 #endif

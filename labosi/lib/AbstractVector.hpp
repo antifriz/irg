@@ -15,11 +15,12 @@
 
 class AbstractVector : public IVector {
 public:
-    AbstractVector(){};
+    AbstractVector() {
+    };
 
     virtual double get(const int) const = 0;
 
-    virtual const IVector & set(const int, const double) const = 0;
+    virtual const IVector &set(const int, const double) const = 0;
 
     virtual int getDimension() const = 0;
 
@@ -27,29 +28,30 @@ public:
 
     virtual IVector newInstance(const int) const = 0;
 
+
     IVector copyPart(const int) const;
 
-    const IVector & add(const IVector&);
+    const IVector &add(const IVector &);
 
-    IVector nAdd(const IVector&) const;
+    IVector nAdd(const IVector &) const;
 
-    const IVector & sub(const IVector&);
+    const IVector &sub(const IVector &);
 
-    IVector nSub(const IVector&) const;
+    IVector nSub(const IVector &) const;
 
-    const IVector & scalarMultiply(const double);
+    const IVector &scalarMultiply(const double);
 
     IVector nScalarMultiply(const double) const;
 
     double norm() const;
 
-    const IVector & normalize();
+    const IVector &normalize();
 
-    double cosine(const IVector&) const;
+    double cosine(const IVector &) const;
 
-    double scalarProduct(const IVector&) const;
+    double scalarProduct(const IVector &) const;
 
-    IVector nVectorProduct(const IVector&) const;
+    IVector nVectorProduct(const IVector &) const;
 
     IVector nFromHomogeneous() const;
 

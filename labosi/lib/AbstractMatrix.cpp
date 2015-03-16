@@ -23,29 +23,29 @@ IMatrix AbstractMatrix::nTranspose(bool const liveView) const {
     return liveView ? mtv : mtv.copy();
 }
 
-const IMatrix& AbstractMatrix::add(IMatrix const& other) {
+const IMatrix &AbstractMatrix::add(IMatrix const &other) {
     for (int j = this->getColsCount() - 1; j >= 0; --j)
         for (int i = this->getRowsCount() - 1; i >= 0; --i)
             this->set(j, i, this->get(j, i) + other.get(j, i));
     return *this;
 }
 
-IMatrix AbstractMatrix::nAdd(IMatrix const& other) const {
+IMatrix AbstractMatrix::nAdd(IMatrix const &other) const {
     return this->copy().add(other);
 }
 
-const IMatrix& AbstractMatrix::sub(IMatrix const& other) {
+const IMatrix &AbstractMatrix::sub(IMatrix const &other) {
     for (int j = this->getColsCount() - 1; j >= 0; --j)
         for (int i = this->getRowsCount() - 1; i >= 0; --i)
             this->set(j, i, this->get(j, i) - other.get(j, i));
     return *this;
 }
 
-IMatrix AbstractMatrix::nSub(IMatrix const& other) const {
+IMatrix AbstractMatrix::nSub(IMatrix const &other) const {
     return this->copy().sub(other);
 }
 
-IMatrix AbstractMatrix::nMultiply(IMatrix const& other) const {
+IMatrix AbstractMatrix::nMultiply(IMatrix const &other) const {
     if (this->getColsCount() != other.getRowsCount())
         throw "bad AbstractMatrix::nMultiply call, can multiply only two matrices of nxa and bxn";
 
@@ -115,14 +115,14 @@ std::string AbstractMatrix::toString(int const precision) const {
     using std::stringstream;
 
     stringstream strream;
-    strream <<std::setprecision(precision);
-    strream<<"[";
-    for (int row = this->getRowsCount(); row>=0  ; ++row) {
-        strream<<"[";
-        for (int col = this->getColsCount(); col>=0 ; ++col) {
-            strream<<this->get(col,row)<<(col?", ":"]");
+    strream << std::setprecision(precision);
+    strream << "[";
+    for (int row = this->getRowsCount(); row >= 0; ++row) {
+        strream << "[";
+        for (int col = this->getColsCount(); col >= 0; ++col) {
+            strream << this->get(col, row) << (col ? ", " : "]");
         }
-        strream<<(row?",":"]")<<std::endl;
+        strream << (row ? "," : "]") << std::endl;
     }
     return strream.str();
 }
