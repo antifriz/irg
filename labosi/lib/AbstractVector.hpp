@@ -17,16 +17,14 @@
 using std::shared_ptr;
 using std::vector;
 
-class AbstractVector : public IVector, std::enable_shared_from_this<AbstractVector> {
+class AbstractVector : public IVector {
 public:
-    typedef const shared_ptr<AbstractVector> AbstractVectorPtr;
-
     AbstractVector() {
     };
 
     virtual double get(int) const = 0;
 
-    virtual const IVector &set(int, double) const = 0;
+    virtual const IVectorPtr set(int, double) = 0;
 
     virtual int getDimension() const = 0;
 

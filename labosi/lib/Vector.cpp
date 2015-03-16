@@ -12,16 +12,16 @@
 #include <stdlib.h>
 #include "Vector.hpp"
 
-const IVectorPtr Vector::set(const int idx, const double value) {
+const IVectorPtr Vector::set(int idx, double value) {
     if (this->readOnly)
         throw "calling Vector::set() on readOnly vector is forbidden";
     elements[idx] = value;
-    return shared_from_this();
+    return this->shared_from_this();
 };
 
 #define VECTOR_H_STRING_DELIMITER (' ')
 
-Vector Vector::parseSimple(const std::string str) {
+const VectorPtr Vector::parseSimple(const std::string str) {
     using namespace std;
 
 
@@ -36,6 +36,6 @@ Vector Vector::parseSimple(const std::string str) {
         values.push_back(d);
     }
 
-    return Vector(values);
+    return VectorPtr(new Vector(values));
 }
 

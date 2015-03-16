@@ -19,13 +19,15 @@
 #define VECTOR_H_IMMUTABLE_DEFAULT true
 
 using std::vector;
+using std::shared_ptr;
 
-class Vector : public AbstractVector, std::enable_shared_from_this<Vector> {
+class Vector : public AbstractVector {
 private:
     vector<double> elements;
     int dimension;
     bool readOnly;
 public:
+    typedef shared_ptr<Vector> VectorPtr;
 
     /*
     * constructor which takes three values:
@@ -33,7 +35,7 @@ public:
     *   - can array be passed by reference // it is ignored so vector always copies input
     *   - array to be initialized with
     */
-    Vector::Vector(bool readOnly, bool inputImmutable, const vector<double> &inputArray)
+    Vector(bool readOnly, bool inputImmutable, const vector<double> &inputArray)
             : dimension((int) inputArray.size()),
               readOnly(readOnly),
               elements(inputArray) {
@@ -44,7 +46,7 @@ public:
     *   - array to be initialized with
     * other options default to defined values
     */
-    Vector::Vector(const vector<double> &initializerVector)
+    Vector(const vector<double> &initializerVector)
             : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, initializerVector) {
     }
 
@@ -88,9 +90,11 @@ public:
     /*
     * creates new instance of Vector with given string
     */
-    static Vector parseSimple(const std::string);
+    static const VectorPtr parseSimple(const std::string);
 
 };
+
+typedef shared_ptr<Vector> VectorPtr;
 
 #endif
 

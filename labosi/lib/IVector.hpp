@@ -19,9 +19,9 @@ using std::shared_ptr;
 using std::vector;
 
 
-class IVector : std::enable_shared_from_this<IVector> {
+class IVector : public std::enable_shared_from_this<IVector> {
 public:
-    typedef const shared_ptr<IVector> IVectorPtr;
+    typedef shared_ptr<IVector> IVectorPtr;
 
     /*
     * Gets vector element at given index
@@ -91,7 +91,7 @@ public:
 
     virtual double norm() const = 0;
 
-    virtual const IVectorPtr normalize() const = 0;
+    virtual const IVectorPtr normalize() = 0;
 
     virtual double cosine(const IVectorPtr) const = 0;
 
@@ -110,6 +110,8 @@ public:
 
     virtual vector<double> toArray() const = 0;
 };
+
+typedef shared_ptr<IVector> IVectorPtr;
 
 
 #endif
