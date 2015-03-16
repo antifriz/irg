@@ -9,7 +9,6 @@
 */
 #include <math.h>
 #include "AbstractVector.hpp"
-#include "MatrixVectorView.hpp"
 
 const IVector &AbstractVector::add(const IVector &other) {
     if (this->getDimension() != other.getDimension())
@@ -115,6 +114,7 @@ IVector AbstractVector::nVectorProduct(IVector const &other) const {
     return retVect;
 }
 
+/*
 IMatrix AbstractVector::toRowMatrix(bool const liveView) const {
     IMatrix retMat = MatrixVectorView(*this, true);
     return liveView ? retMat : retMat.copy();
@@ -123,7 +123,7 @@ IMatrix AbstractVector::toRowMatrix(bool const liveView) const {
 IMatrix AbstractVector::toColumnMatrix(bool const liveView) const {
     IMatrix retMat = MatrixVectorView(*this, false);
     return liveView ? retMat : retMat.copy();
-}
+}*/
 
 std::vector<double> AbstractVector::toArray() const {
     std::vector<double> retVect((unsigned int) this->getDimension());

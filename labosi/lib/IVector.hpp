@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "IMatrix.hpp"
+//#include "IMatrix.hpp"
 
 class IVector {
 public:
@@ -97,9 +97,9 @@ public:
     */
     virtual IVector nFromHomogeneous() const = 0;
 
-    virtual IMatrix toRowMatrix(const bool) const = 0;
+    //   virtual IMatrix toRowMatrix(const bool) const = 0;
 
-    virtual IMatrix toColumnMatrix(const bool) const = 0;
+    //   virtual IMatrix toColumnMatrix(const bool) const = 0;
 
     virtual std::vector<double> toArray() const = 0;
 };

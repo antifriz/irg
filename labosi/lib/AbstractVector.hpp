@@ -55,9 +55,9 @@ public:
 
     IVector nFromHomogeneous() const;
 
-    IMatrix toRowMatrix(const bool) const;
+    //IMatrix toRowMatrix(const bool) const;
 
-    IMatrix toColumnMatrix(const bool) const;
+    //IMatrix toColumnMatrix(const bool) const;
 
     std::vector<double> toArray() const;
 };

@@ -13,9 +13,9 @@
 #include <iomanip>
 #include <sstream>
 #include "AbstractMatrix.hpp"
+#include "MatrixSubMatrixView.hpp"
 #include "MatrixTransposeView.hpp"
 #include "VectorMatrixView.hpp"
-#include "MatrixSubMatrixView.hpp"
 
 
 IMatrix AbstractMatrix::nTranspose(bool const liveView) const {
