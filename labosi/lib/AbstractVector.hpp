@@ -19,7 +19,7 @@ public:
 
     virtual double get(const int) const = 0;
 
-    virtual IVector & set(const int, const double) const = 0;
+    virtual const IVector & set(const int, const double) const = 0;
 
     virtual int getDimension() const = 0;
 
