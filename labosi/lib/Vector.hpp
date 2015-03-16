@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "AbstractVector.hpp"
 
 #define VECTOR_H_READONLY_DEFAULT false
@@ -19,7 +20,7 @@
 
 using std::vector;
 
-class Vector : public AbstractVector {
+class Vector : public AbstractVector, std::enable_shared_from_this<Vector> {
 private:
     vector<double> elements;
     int dimension;
@@ -32,7 +33,7 @@ public:
     *   - can array be passed by reference // it is ignored so vector always copies input
     *   - array to be initialized with
     */
-    Vector::Vector(const bool readOnly, const bool inputImmutable, const vector<double> &inputArray)
+    Vector::Vector(bool readOnly, bool inputImmutable, const vector<double> &inputArray)
             : dimension((int) inputArray.size()),
               readOnly(readOnly),
               elements(inputArray) {
@@ -51,14 +52,14 @@ public:
     /*
     * gets vector element at given index
     */
-    double get(const int idx) const {
+    double get(int idx) const {
         return elements[idx];
     }
 
     /*
     * if vector is not readonly sets value at given index, else throws exception
     */
-    const IVector &set(const int, const double);
+    const IVectorPtr set(int, double);
 
 
     /*
@@ -72,15 +73,15 @@ public:
     /*
     * creates copy of this vector
     */
-    IVector copy() const {
-        return Vector(readOnly, true, this->elements);
+    const IVectorPtr copy() const {
+        return IVectorPtr(new Vector(readOnly, true, this->elements));
     }
 
     /*
     * creates new instance of Vector with given dimension
     */
-    IVector newInstance(const int dimension) const {
-        return Vector(vector<double>((unsigned int) dimension));
+    const IVectorPtr newInstance(int dimension) const {
+        return IVectorPtr(new Vector(vector<double>((unsigned int) dimension)));
     }
 
 

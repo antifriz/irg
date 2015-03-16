@@ -12,11 +12,11 @@
 #include <stdlib.h>
 #include "Vector.hpp"
 
-const IVector &Vector::set(const int idx, const double value) {
+const IVectorPtr Vector::set(const int idx, const double value) {
     if (this->readOnly)
         throw "calling Vector::set() on readOnly vector is forbidden";
     elements[idx] = value;
-    return *this;
+    return shared_from_this();
 };
 
 #define VECTOR_H_STRING_DELIMITER (' ')

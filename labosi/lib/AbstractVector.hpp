@@ -11,55 +11,61 @@
 #define ABSTRACT_VECTOR_H_
 
 #include <vector>
+#include <memory>
 #include "IVector.hpp"
 
-class AbstractVector : public IVector {
+using std::shared_ptr;
+using std::vector;
+
+class AbstractVector : public IVector, std::enable_shared_from_this<AbstractVector> {
 public:
+    typedef const shared_ptr<AbstractVector> AbstractVectorPtr;
+
     AbstractVector() {
     };
 
-    virtual double get(const int) const = 0;
+    virtual double get(int) const = 0;
 
-    virtual const IVector &set(const int, const double) const = 0;
+    virtual const IVector &set(int, double) const = 0;
 
     virtual int getDimension() const = 0;
 
-    virtual IVector copy() const = 0;
+    virtual const IVectorPtr copy() const = 0;
 
-    virtual IVector newInstance(const int) const = 0;
+    virtual const IVectorPtr newInstance(int) const = 0;
 
 
-    IVector copyPart(const int) const;
+    const IVectorPtr copyPart(int) const;
 
-    const IVector &add(const IVector &);
+    const IVectorPtr add(const IVectorPtr);
 
-    IVector nAdd(const IVector &) const;
+    const IVectorPtr nAdd(const IVectorPtr) const;
 
-    const IVector &sub(const IVector &);
+    const IVectorPtr sub(const IVectorPtr);
 
-    IVector nSub(const IVector &) const;
+    const IVectorPtr nSub(const IVectorPtr) const;
 
-    const IVector &scalarMultiply(const double);
+    const IVectorPtr scalarMultiply(double);
 
-    IVector nScalarMultiply(const double) const;
+    const IVectorPtr nScalarMultiply(double) const;
 
     double norm() const;
 
-    const IVector &normalize();
+    const IVectorPtr normalize();
 
-    double cosine(const IVector &) const;
+    double cosine(const IVectorPtr) const;
 
-    double scalarProduct(const IVector &) const;
+    double scalarProduct(const IVectorPtr) const;
 
-    IVector nVectorProduct(const IVector &) const;
+    const IVectorPtr nVectorProduct(const IVectorPtr) const;
 
-    IVector nFromHomogeneous() const;
+    const IVectorPtr nFromHomogeneous() const;
 
     //IMatrix toRowMatrix(const bool) const;
 
     //IMatrix toColumnMatrix(const bool) const;
 
-    std::vector<double> toArray() const;
+    vector<double> toArray() const;
 };
 
 #endif
