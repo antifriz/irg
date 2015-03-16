@@ -28,13 +28,13 @@ protected:
     }
 
 
-    MatrixSubMatrixView(const IMatrix& original, vector<int> rows, vector<int> cols)
+    MatrixSubMatrixView(const IMatrix& original, vector<int> cols, vector<int> rows)
             : original(original), rowIndexes(rows), colIndexes(cols) {
     }
 
 
 public:
-    MatrixSubMatrixView(const IMatrix& original, int rows, int cols);
+    MatrixSubMatrixView(const IMatrix& original, int excludingCol, int excludingRow);
 
     virtual int getRowsCount() const {
         return (int) this->rowIndexes.size();
