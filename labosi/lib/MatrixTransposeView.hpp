@@ -16,39 +16,39 @@
 
 class MatrixTransposeView : public AbstractMatrix {
 protected:
-    IMatrix &original;
+    IMatrixPtr original;
 public:
-    MatrixTransposeView(const IMatrix &original) : original(original) {
+    MatrixTransposeView(const IMatrixPtr original) : original(original) {
     }
 
 
     virtual int getRowsCount() const {
-        return original.getColsCount();
+        return original->getColsCount();
     }
 
     virtual int getColsCount() const {
-        return original.getRowsCount();
+        return original->getRowsCount();
     }
 
 
-    virtual double get(const int col, const int row) const {
-        return original.get(row, col);
+    virtual double get(const int row, const int col) const {
+        return original->get(col, row);
     };
 
-    virtual const IMatrix &set(const int col, const int row, const double val) {
-        this->original.set(row, col, val);
-        return *this;
+    virtual const IMatrixPtr set(int row, int col, double val) {
+        this->original->set(col, row, val);
+        return this->shared_from_this();
     }
 
 
-    virtual IMatrix copy() const;
+    virtual const IMatrixPtr copy() const;
 
-    virtual IMatrix newInstance(const int col, const int row) const {
-        return this->original.newInstance(col, row);
+    virtual const IMatrixPtr newInstance(int row, int col) const {
+        return this->original->newInstance(col, row);
     }
 
 
-    virtual std::vector<std::vector<double>> toArray();
+    virtual vector<vector<double>> toArray();
 };
 
 #endif

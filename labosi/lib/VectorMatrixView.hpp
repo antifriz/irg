@@ -12,24 +12,28 @@
 
 
 #include "AbstractVector.hpp"
+#include "IMatrix.hpp"
 
 class VectorMatrixView : public AbstractVector {
 private:
     bool rowMatrix;
     int dimension;
-    IMatrix &original;
+    IMatrixPtr original;
 public:
-    VectorMatrixView(const IMatrix &original);
+    VectorMatrixView(const IMatrixPtr original);
 
-    double get(const int) const;
+    double get(int) const;
 
-    const IVector &set(const int, const double) const;
+    const IVectorPtr set(int, double);
 
     int getDimension() const;
 
-    IVector copy() const;
+    const IVectorPtr copy() const;
 
-    IVector newInstance(const int) const;
+    const IVectorPtr newInstance(int) const;
+
+
+    virtual const string toString(int i) const;
 };
 
 #endif

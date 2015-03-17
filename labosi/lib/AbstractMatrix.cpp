@@ -17,73 +17,83 @@
 #include "MatrixTransposeView.hpp"
 #include "VectorMatrixView.hpp"
 
-
-IMatrix AbstractMatrix::nTranspose(bool const liveView) const {
-    MatrixTransposeView mtv(*this);
-    return liveView ? mtv : mtv.copy();
+const IMatrixPtr AbstractMatrix::nTranspose(bool liveView) {
+    IMatrixPtr ptr = IMatrixPtr(new MatrixTransposeView(this->shared_from_this()));
+    return liveView ? ptr : ptr->copy();
 }
 
-const IMatrix &AbstractMatrix::add(IMatrix const &other) {
+const IMatrixPtr AbstractMatrix::add(const IMatrixPtr other) {
     for (int j = this->getColsCount() - 1; j >= 0; --j)
         for (int i = this->getRowsCount() - 1; i >= 0; --i)
-            this->set(j, i, this->get(j, i) + other.get(j, i));
-    return *this;
+            this->set(j, i, this->get(j, i) + other->get(j, i));
+    return this->shared_from_this();
 }
 
-IMatrix AbstractMatrix::nAdd(IMatrix const &other) const {
-    return this->copy().add(other);
+const IMatrixPtr AbstractMatrix::nAdd(const IMatrixPtr other) const {
+    return this->copy()->add(other);
 }
 
-const IMatrix &AbstractMatrix::sub(IMatrix const &other) {
+const IMatrixPtr AbstractMatrix::sub(const IMatrixPtr other) {
     for (int j = this->getColsCount() - 1; j >= 0; --j)
         for (int i = this->getRowsCount() - 1; i >= 0; --i)
-            this->set(j, i, this->get(j, i) - other.get(j, i));
-    return *this;
+            this->set(j, i, this->get(j, i) - other->get(j, i));
+    return this->shared_from_this();
 }
 
-IMatrix AbstractMatrix::nSub(IMatrix const &other) const {
-    return this->copy().sub(other);
+const IMatrixPtr AbstractMatrix::nSub(const IMatrixPtr other) const {
+    return this->copy()->sub(other);
 }
 
-IMatrix AbstractMatrix::nMultiply(IMatrix const &other) const {
-    if (this->getColsCount() != other.getRowsCount())
+const IMatrixPtr AbstractMatrix::nMultiply(const IMatrixPtr other) const {
+    if (this->getColsCount() != other->getRowsCount())
         throw "bad AbstractMatrix::nMultiply call, can multiply only two matrices of nxa and bxn";
 
-    IMatrix retMatrix = this->newInstance(this->getRowsCount(), other.getColsCount());
+    IMatrixPtr retMatrixPtr = this->newInstance(other->getColsCount(), this->getRowsCount());
 
     for (int row = this->getRowsCount() - 1; row >= 0; --row)
-        for (int otherCol = other.getColsCount() - 1; otherCol >= 0; --otherCol) {
+        for (int otherCol = other->getColsCount() - 1; otherCol >= 0; --otherCol) {
             double value = 0;
 
             for (int col = this->getColsCount() - 1; col >= 0; --col)
-                value += this->get(col, row) * this->get(otherCol, col);
+                value += this->get(row, col) * this->get(col, otherCol);
 
-            retMatrix.set(otherCol, row, value);
+            retMatrixPtr->set(row, otherCol, value);
         }
-    return retMatrix;
+    return retMatrixPtr;
 }
 
-IMatrix AbstractMatrix::nInvert() const {
-    IMatrix retMatrix = this->newInstance(this->getRowsCount(), this->getColsCount());
-    for (int j = this->getRowsCount() - 1; j >= 0; ++j)
-        for (int i = this->getColsCount(); i >= 0; ++i)
-            retMatrix.set(i, j, this->get(j, i));
-    return retMatrix;
+const IMatrixPtr AbstractMatrix::nInvert() const {
+    IMatrixPtr ptr = this->copy();
+    for (int i = 0; i < ptr->getRowsCount(); ++i) {
+        for (int j = 0; j < ptr->getColsCount(); ++j) {
+            ptr->set(i, j, (i % 2 ? -1 : 1) * (j % 2 ? -1 : 1) * ptr->subMatrix(i, j, false)->determinant());
+        }
+    }
+    return ptr->nTranspose(false)->multiplyByConstant(1.0 / this->determinant());
 }
 
-std::vector<std::vector<double>> AbstractMatrix::toArray() const {
-    std::vector<std::vector<double>> retVect((unsigned int) this->getColsCount());
+const IMatrixPtr AbstractMatrix::multiplyByConstant(double constant) {
+    for (int i = 0; i < this->getRowsCount(); ++i) {
+        for (int j = 0; j < this->getColsCount(); ++j) {
+            this->set(i, j, this->get(i, j) * constant);
+        }
+    }
+    return this->shared_from_this();
+}
+
+vector<vector<double>> AbstractMatrix::toArray() const {
+    vector<vector<double>> retVect((unsigned int) this->getColsCount());
 
     for (int j = this->getColsCount() - 1; j >= 0; ++j) {
-        retVect[j] = std::vector<double>((unsigned int) this->getRowsCount());
+        retVect[j] = vector<double>((unsigned int) this->getRowsCount());
         for (int i = this->getRowsCount() - 1; i >= 0; ++i)
             retVect[j][i] = this->get(j, i);
     }
     return retVect;
 }
 
-IVector AbstractMatrix::toVector(bool const liveView) const {
-    return liveView ? VectorMatrixView(*this) : VectorMatrixView(*this).copy();
+const IVectorPtr AbstractMatrix::toVector(bool liveView) {
+    return liveView ? IVectorPtr(new VectorMatrixView(this->shared_from_this())) : IVectorPtr(new VectorMatrixView(this->shared_from_this()))->copy();
 }
 
 double AbstractMatrix::determinant() const {
@@ -96,33 +106,33 @@ double AbstractMatrix::determinant() const {
         return this->get(0, 0) * this->get(1, 1) - this->get(1, 0) * this->get(0, 1);
 
     double sum = 0;
-    for (int excludeCol = this->getColsCount() - 1; excludeCol >= 0; --excludeCol)
-        sum += ((excludeCol % 2) ? -1 : 1) * MatrixSubMatrixView(*this, excludeCol, 0).determinant();
-
+    for (int excludeCol = this->getColsCount() - 1; excludeCol >= 0; --excludeCol) {
+        MatrixSubMatrixView msmv = MatrixSubMatrixView(this->copy()->shared_from_this(), excludeCol, 0);
+        sum += ((excludeCol % 2) ? -1 : 1) * msmv.determinant();
+    }
     return sum;
 }
 
-IMatrix AbstractMatrix::subMatrix(int const excludeCol, int const excludeRow, bool const liveView) const {
-    MatrixSubMatrixView msmv(*this, excludeCol, excludeRow);
-    return liveView ? msmv : msmv.copy();
+const IMatrixPtr AbstractMatrix::subMatrix(int excludeRow, int excludeCol, bool liveView) {
+    IMatrixPtr iptr = IMatrixPtr(new MatrixSubMatrixView(this->shared_from_this(), excludeRow, excludeCol));
+    return liveView ? iptr : iptr->copy();
 }
 
-std::string AbstractMatrix::toString() const {
+const string AbstractMatrix::toString() const {
     return this->toString(3);
 }
 
-std::string AbstractMatrix::toString(int const precision) const {
+const string AbstractMatrix::toString(int precision) const {
     using std::stringstream;
 
     stringstream strream;
     strream << std::setprecision(precision);
-    strream << "[";
-    for (int row = this->getRowsCount(); row >= 0; ++row) {
-        strream << "[";
-        for (int col = this->getColsCount(); col >= 0; ++col) {
-            strream << this->get(col, row) << (col ? ", " : "]");
+    for (int row = 0; row < this->getRowsCount(); ++row) {
+        strream << "[ ";
+        for (int col = 0; col < this->getColsCount(); ++col) {
+            strream << this->get(col, row) << (col != this->getColsCount() - 1 ? ", " : "]");
         }
-        strream << (row ? "," : "]") << std::endl;
+        strream << std::endl;
     }
     return strream.str();
 }

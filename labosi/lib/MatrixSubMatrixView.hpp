@@ -12,43 +12,45 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "AbstractMatrix.hpp"
 
 using std::vector;
+using std::shared_ptr;
 
 class MatrixSubMatrixView : public AbstractMatrix {
 protected:
-    IMatrix &original;
-    int excludedRow;
-    int excludedCol;
+    const IMatrixPtr original;
+    const int excludedCol;
+    const int excludedRow;
 
 public:
-    MatrixSubMatrixView(const IMatrix &original, const int excludedCol, const int excludedRow)
-            : original(original), excludedRow(excludedRow), excludedCol(excludedCol) {
+    MatrixSubMatrixView(const IMatrixPtr original, int excludedRow, int excludedCol)
+            : original(original), excludedCol(excludedCol), excludedRow(excludedRow) {
     }
     virtual int getRowsCount() const {
-        return this->original.getRowsCount() - 1;
+        return this->original->getRowsCount() - 1;
     }
 
     virtual int getColsCount() const {
-        return this->original.getColsCount() - 1;
+        return this->original->getColsCount() - 1;
     }
 
 
-    virtual double get(const int, const int) const;
+    virtual double get(int, int) const;
 
-    virtual const IMatrix &set(const int, const int, const double);
+    virtual const IMatrixPtr set(int, int, double);
 
 
-    virtual IMatrix copy() const;
+    virtual const IMatrixPtr copy() const;
 
-    virtual IMatrix newInstance(const int col, const int row) const {
-        return this->original.newInstance(col, row);
+    virtual const IMatrixPtr newInstance(int row, int col) const {
+        return this->original->newInstance(row, col);
     };
 
 
-    virtual IMatrix subMatrix(const int col, const int row, const bool liveView) const {
-        return this->copy().subMatrix(col, row, liveView).copy();
+    virtual const IMatrixPtr subMatrix(const int row, const int col, const bool liveView) const {
+        return this->copy()->subMatrix(row, col, liveView)->copy();
     }
 };
 

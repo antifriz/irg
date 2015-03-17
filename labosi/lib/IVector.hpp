@@ -17,6 +17,7 @@
 
 using std::shared_ptr;
 using std::vector;
+using std::string;
 
 
 class IVector : public std::enable_shared_from_this<IVector> {
@@ -109,6 +110,11 @@ public:
     //   virtual IMatrix toColumnMatrix(const bool) const = 0;
 
     virtual vector<double> toArray() const = 0;
+
+
+    virtual const string toString() const = 0;
+
+    virtual const string toString(int) const = 0;
 };
 
 typedef shared_ptr<IVector> IVectorPtr;

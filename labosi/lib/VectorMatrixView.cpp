@@ -12,39 +12,43 @@
 #include "Vector.hpp"
 
 double VectorMatrixView::get(int const idx) const {
-    return this->rowMatrix ? this->original.get(0, idx) : this->original.get(idx, 0);
+    return !this->rowMatrix ? this->original->get(0, idx) : this->original->get(idx, 0);
 }
 
-const IVector &VectorMatrixView::set(int const idx, double const val) const {
-    this->rowMatrix ? this->original.set(0, idx, val) : this->original.set(idx, 0, val);
-    return *this;
+const IVectorPtr VectorMatrixView::set(int const idx, double const val) {
+    !this->rowMatrix ? this->original->set(0, idx, val) : this->original->set(idx, 0, val);
+    return this->shared_from_this();
 }
 
 int VectorMatrixView::getDimension() const {
     return this->dimension;
 }
 
-IVector VectorMatrixView::copy() const {
-    IVector retVect = Vector(std::vector<double>((unsigned int) this->dimension));
+const IVectorPtr VectorMatrixView::copy() const {
+    IVectorPtr retVect = IVectorPtr(new Vector(std::vector<double>((unsigned int) this->dimension)));
 
     for (int i = this->dimension - 1; i >= 0; --i)
-        retVect.set(i, this->get(i));
+        retVect->set(i, this->get(i));
 
     return retVect;
 }
 
-IVector VectorMatrixView::newInstance(const int dimension) const {
-    return Vector(std::vector<double>((unsigned int) dimension));
+const IVectorPtr VectorMatrixView::newInstance(const int dimension) const {
+    return IVectorPtr(new Vector(std::vector<double>((unsigned int) dimension)));
 }
 
-VectorMatrixView::VectorMatrixView(const IMatrix &original)
+VectorMatrixView::VectorMatrixView(const IMatrixPtr original)
         : original(original) {
-    if (this->original.getColsCount() == 1) {
+    if (this->original->getColsCount() == 1) {
         this->rowMatrix = true;
-        this->dimension = original.getColsCount();
-    } else if (this->original.getRowsCount() == 1) {
+        this->dimension = original->getColsCount();
+    } else if (this->original->getRowsCount() == 1) {
         this->rowMatrix = false;
-        this->dimension = original.getRowsCount();
+        this->dimension = original->getRowsCount();
     } else
         throw "bad VectorMatrixView initialization, matrix must be 1xN or Nx1";
+}
+
+const string VectorMatrixView::toString(int precision) const {
+    return this->original->toString(precision);
 }

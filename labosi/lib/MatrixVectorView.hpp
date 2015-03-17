@@ -15,23 +15,24 @@
 
 class MatrixVectorView : public AbstractMatrix {
 private:
+    IVectorPtr original;
     bool asRowMatrix;
-    IVector &original;
+
 public:
-    MatrixVectorView(const IVector &original, const bool asRowMatrix) : original(original), asRowMatrix(asRowMatrix) {
+    MatrixVectorView(const IVectorPtr original, const bool asRowMatrix) : original(original), asRowMatrix(asRowMatrix) {
     }
 
     virtual int getRowsCount() const;
 
     virtual int getColsCount() const;
 
-    virtual double get(const int, const int) const;
+    virtual double get(int, int) const;
 
-    virtual const IMatrix &set(const int, const int, const double);
+    virtual const IMatrixPtr set(int, int, double);
 
-    virtual IMatrix copy() const;
+    virtual const IMatrixPtr copy() const;
 
-    virtual IMatrix newInstance(const int, const int) const;
+    virtual const IMatrixPtr newInstance(int, int) const;
 };
 
 #endif

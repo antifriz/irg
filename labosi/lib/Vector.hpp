@@ -36,9 +36,9 @@ public:
     *   - array to be initialized with
     */
     Vector(bool readOnly, bool inputImmutable, const vector<double> &inputArray)
-            : dimension((int) inputArray.size()),
-              readOnly(readOnly),
-              elements(inputArray) {
+            : elements(inputArray),
+              dimension((int) inputArray.size()),
+              readOnly(readOnly) {
     }
 
     /*

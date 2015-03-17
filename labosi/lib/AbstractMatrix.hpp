@@ -11,50 +11,60 @@
 #define ABSTRACT_MATRIX_H_
 
 #include <vector>
-#include <string>
+#include <memory>
 #include "IMatrix.hpp"
+
+using std::shared_ptr;
+using std::vector;
+using std::string;
 
 class AbstractMatrix : public IMatrix {
 public:
+    typedef shared_ptr<AbstractMatrix> AbstractMatrixPtr;
+
     virtual int getRowsCount() const = 0;
 
     virtual int getColsCount() const = 0;
 
-    virtual double get(const int, const int) const = 0;
+    virtual double get(int, int) const = 0;
 
-    virtual const IMatrix &set(const int, const int, const double) = 0;
+    virtual const IMatrixPtr set(int, int, double) = 0;
 
-    virtual IMatrix copy() const = 0;
+    virtual const IMatrixPtr copy() const = 0;
 
-    virtual IMatrix newInstance(const int, const int) const = 0;
+    virtual const IMatrixPtr newInstance(int, int) const = 0;
 
 
-    virtual IMatrix nTranspose(const bool) const;
+    virtual const IMatrixPtr nTranspose(bool);
 
-    virtual const IMatrix &add(const IMatrix &);
+    virtual const IMatrixPtr add(const IMatrixPtr);
 
-    virtual IMatrix nAdd(const IMatrix &) const;
+    virtual const IMatrixPtr nAdd(const IMatrixPtr) const;
 
-    virtual const IMatrix &sub(const IMatrix &);
+    virtual const IMatrixPtr sub(const IMatrixPtr);
 
-    virtual IMatrix nSub(const IMatrix &) const;
+    virtual const IMatrixPtr nSub(const IMatrixPtr) const;
 
-    virtual IMatrix nMultiply(const IMatrix &) const;
+    virtual const IMatrixPtr nMultiply(const IMatrixPtr) const;
 
     virtual double determinant() const;
 
-    virtual IMatrix subMatrix(const int, const int, const bool) const;
+    virtual const IMatrixPtr subMatrix(int, int, bool);
 
-    virtual IMatrix nInvert() const;
+    virtual const IMatrixPtr nInvert() const;
 
-    virtual std::vector<std::vector<double>> toArray() const;
+    virtual vector<vector<double>> toArray() const;
 
-    virtual IVector toVector(const bool) const;
+    virtual const IVectorPtr toVector(bool);
 
 
-    virtual std::string toString() const;
+    virtual const string toString() const;
 
-    virtual std::string toString(const int) const;
+    virtual const string toString(int) const;
+
+    IMatrixPtr const multiplyByConstant(double constant);
 };
+
+typedef shared_ptr<AbstractMatrix> AbstractMatrixPtr;
 
 #endif

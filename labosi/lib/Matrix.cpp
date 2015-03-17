@@ -11,9 +11,10 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
+#include <iostream>
 #include "Matrix.hpp"
 
-Matrix::Matrix(const int cols, const int rows) : cols(cols), rows(rows) {
+Matrix::Matrix(const int rows, const int cols) : cols(cols), rows(rows) {
     this->elements = vector<vector<double>>((unsigned int) cols);
     for (int j = cols - 1; j >= 0; --j) {
         this->elements[j] = vector<double>((unsigned int) rows);
@@ -23,19 +24,18 @@ Matrix::Matrix(const int cols, const int rows) : cols(cols), rows(rows) {
 }
 
 
-
-IMatrix Matrix::copy() const {
-    return Matrix(this->cols, this->rows, this->elements, true);
+const IMatrixPtr Matrix::copy() const {
+    return IMatrixPtr(new Matrix(this->rows, this->cols, this->elements, true));
 }
 
-IMatrix Matrix::newInstance(int const cols, int const rows) const {
-    return Matrix(cols, rows);
+const IMatrixPtr Matrix::newInstance(int const rows, int const cols) const {
+    return IMatrixPtr(new Matrix(rows, cols));
 }
 
 #define MATRIX_H_STRING_DELIMITER_CELL (' ')
 #define MATRIX_H_STRING_DELIMITER_ROW ('|')
 
-Matrix Matrix::parseSimple(const std::string str) {
+const MatrixPtr Matrix::parseSimple(const std::string str) {
     using namespace std;
 
     stringstream ss(str);
@@ -44,16 +44,18 @@ Matrix Matrix::parseSimple(const std::string str) {
     int row = 0;
     values[0] = vector<double>();
 
+
     int rowCount = -1;
 
     while (getline(ss, item, MATRIX_H_STRING_DELIMITER_CELL)) {
         if (item[0] == MATRIX_H_STRING_DELIMITER_ROW) {
             if (rowCount == -1)
                 rowCount = values[0].size();
-            else if (rowCount != values[row].size())
+            else if (rowCount != (int) values[row].size())
                 throw "bad Matrix::parseSimple call, string not formatted well";
             row++;
             values.push_back(vector<double>());
+
             continue;
         }
 
@@ -61,17 +63,18 @@ Matrix Matrix::parseSimple(const std::string str) {
         double d = strtod(item.c_str(), &endptr);
         if (*endptr)
             throw "bad Vector::parseSimple call; input string not valid";
-        values[0].push_back(d);
+        values[row].push_back(d);
     }
 
-    auto v = values;
+    vector<vector<double>> v((unsigned int) rowCount);
 
-    for (int i = rowCount; i >= 0; i--) {
-        v[i] = std::vector<double>(values.size());
-        for (int j = values.size(); j >= 0; j--)
-            v[i][j] = values[j][i];
+    for (int i = 0; i < rowCount; ++i) {
+        v.push_back(vector<double>());
+        for (int j = 0; j < (int) values.size(); ++j) {
+            v[i].push_back(values[j][i]);
+        }
     }
 
-    return Matrix(rowCount, v.size(), v, true);
+    return MatrixPtr(new Matrix(values.size(), rowCount, v, true));
 }
 

@@ -15,20 +15,23 @@
 #include "AbstractMatrix.hpp"
 
 using std::vector;
+using std::string;
 
 class Matrix : public AbstractMatrix {
 protected:
-    vector<vector<double>> elements;
-    int rows;
     int cols;
+    int rows;
+    vector<vector<double>> elements;
 public:
+    typedef shared_ptr<Matrix> MatrixPtr;
+
     Matrix(const int, const int);
 
     /*
     * rawData is representation of matrix, constructor always copies the rawData into Matrix class
     */
-    Matrix(const int rows, const int cols, const vector<vector<double>> &rawData, const bool)
-            : rows(rows), cols(cols), elements(rawData) {
+    Matrix(int rows, int cols, const vector<vector<double>> &rawData, bool)
+            : cols(cols), rows(rows), elements(rawData) {
     };
 
 
@@ -41,22 +44,24 @@ public:
     }
 
 
-    virtual double get(const int col, const int row) const {
-        return elements[col][row];
+    virtual double get(int row, int col) const {
+        return elements[row][col];
     };
 
-    virtual const IMatrix &set(const int col, const int row, const double val) {
+    virtual const IMatrixPtr set(int row, int col, double val) {
         elements[col][row] = val;
-        return *this;
+        return this->shared_from_this();
     }
 
 
-    virtual IMatrix copy() const;
+    virtual const IMatrixPtr copy() const;
 
-    virtual IMatrix newInstance(const int, const int) const;
+    virtual const IMatrixPtr newInstance(int, int) const;
 
 
-    static Matrix parseSimple(const std::string str);
+    static const MatrixPtr parseSimple(const string str);
 };
+
+typedef shared_ptr<Matrix> MatrixPtr;
 
 #endif

@@ -9,26 +9,26 @@
 */
 #include "MatrixSubMatrixView.hpp"
 
-const IMatrix &MatrixSubMatrixView::set(int const col, int const row, double const val) {
+const IMatrixPtr MatrixSubMatrixView::set(int row, int col, double val) {
     int realCol = col < this->excludedCol ? col : col + 1;
     int realRow = row < this->excludedRow ? row : row + 1;
-    this->original.set(realCol, realRow, val);
-    return *this;
+    this->original->set(realRow, realCol, val);
+    return this->shared_from_this();
 }
 
 
-double MatrixSubMatrixView::get(const int col, const int row) const {
+double MatrixSubMatrixView::get(int row, int col) const {
     int realCol = col < this->excludedCol ? col : col + 1;
     int realRow = row < this->excludedRow ? row : row + 1;
-    return this->original.get(realCol, realRow);
+    return this->original->get(realRow, realCol);
 }
 
-IMatrix MatrixSubMatrixView::copy() const {
-    IMatrix retMatrix = this->original.newInstance(this->original.getColsCount() - 1, this->original.getRowsCount() - 1);
-    for (int j = this->original.getColsCount() - 1; j >= 0; --j)
+const IMatrixPtr MatrixSubMatrixView::copy() const {
+    IMatrixPtr retMatrix = this->original->newInstance(this->original->getRowsCount() - 1, this->original->getColsCount() - 1);
+    for (int j = this->original->getColsCount() - 1; j >= 0; --j)
         if (this->excludedCol != j)
-            for (int i = this->original.getRowsCount() - 1; i >= 0; ++i)
+            for (int i = this->original->getRowsCount() - 1; i >= 0; ++i)
                 if (this->excludedRow != i)
-                    retMatrix.set(j, i, this->get(j, i));
+                    retMatrix->set(j, i, this->get(j, i));
     return retMatrix;
 }

@@ -16,9 +16,12 @@
 
 using std::shared_ptr;
 using std::vector;
+using std::string;
 
 class AbstractVector : public IVector {
 public:
+    typedef shared_ptr<AbstractVector> AbstractVectorPtr;
+
     AbstractVector() {
     };
 
@@ -64,6 +67,13 @@ public:
     //IMatrix toColumnMatrix(const bool) const;
 
     vector<double> toArray() const;
+
+
+    const std::string toString() const;
+
+    const std::string toString(const int) const;
 };
+
+typedef shared_ptr<AbstractVector> AbstractVectorPtr;
 
 #endif

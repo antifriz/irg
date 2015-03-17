@@ -12,31 +12,31 @@
 #include "Matrix.hpp"
 
 int MatrixVectorView::getColsCount() const {
-    return this->asRowMatrix ? this->original.getDimension() : 1;
+    return this->asRowMatrix ? this->original->getDimension() : 1;
 }
 
 int MatrixVectorView::getRowsCount() const {
-    return !this->asRowMatrix ? this->original.getDimension() : 1;
+    return !this->asRowMatrix ? this->original->getDimension() : 1;
 }
 
-double MatrixVectorView::get(int const col, int const row) const {
-    return this->original.get(col > row ? col : row);
+double MatrixVectorView::get(int row, int col) const {
+    return this->original->get(col > row ? col : row);
 }
 
-const IMatrix &MatrixVectorView::set(int const col, int const row, double const val) {
-    this->original.set(col > row ? col : row, val);
-    return *this;
+const IMatrixPtr MatrixVectorView::set(int row, int col, double val) {
+    this->original->set(col > row ? col : row, val);
+    return this->shared_from_this();
 }
 
-IMatrix MatrixVectorView::copy() const {
-    IMatrix retMatrix = Matrix(0, this->original.getDimension());
+const IMatrixPtr MatrixVectorView::copy() const {
+    IMatrixPtr retMatrixPtr = IMatrixPtr(new Matrix(0, this->original->getDimension()));
 
-    for (int i = this->original.getDimension(); i >= 0; --i)
-        retMatrix.set(0, i, this->original.get(i));
+    for (int i = this->original->getDimension(); i >= 0; --i)
+        retMatrixPtr->set(0, i, this->original->get(i));
 
-    return this->asRowMatrix ? retMatrix : retMatrix.nTranspose(false);
+    return this->asRowMatrix ? retMatrixPtr : retMatrixPtr->nTranspose(false);
 }
 
-IMatrix MatrixVectorView::newInstance(int const cols, int const rows) const {
-    return Matrix(cols, rows);
+const IMatrixPtr MatrixVectorView::newInstance(int rows, int cols) const {
+    return IMatrixPtr(new Matrix(rows, cols));
 }

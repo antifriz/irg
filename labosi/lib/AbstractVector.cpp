@@ -8,6 +8,8 @@
 * @version 1.0 12/03/15
 */
 #include <math.h>
+#include <sstream>
+#include <iomanip>
 #include "AbstractVector.hpp"
 
 const IVectorPtr AbstractVector::add(const IVectorPtr other) {
@@ -49,7 +51,7 @@ const IVectorPtr AbstractVector::nScalarMultiply(double scalar) const {
 const IVectorPtr AbstractVector::nFromHomogeneous() const {
     int dim = this->getDimension();
 
-    shared_ptr<IVector> retVectPtr = this->copyPart(--dim);
+    IVectorPtr retVectPtr = this->copyPart(--dim);
 
     double divisor = this->get(dim--);
     for (; dim >= 0; dim--)
@@ -131,4 +133,20 @@ vector<double> AbstractVector::toArray() const {
         retVect.push_back(this->get(i));
 
     return retVect;
+}
+
+const std::string AbstractVector::toString() const {
+    return this->toString(3);
+}
+
+const std::string AbstractVector::toString(int precision) const {
+    using std::stringstream;
+
+    stringstream strream;
+    strream << std::setprecision(precision);
+    strream << "[ ";
+    for (int col = 0; col < this->getDimension(); ++col)
+        strream << this->get(col) << (col != this->getDimension() - 1 ? ", " : "]");
+    strream << std::endl;
+    return strream.str();
 }
