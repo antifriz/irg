@@ -44,11 +44,16 @@ public:
     virtual const IMatrixPtr copy() const;
 
     virtual const IMatrixPtr newInstance(int row, int col) const {
-        return this->original->newInstance(col, row);
+        return this->original->newInstance(row, col);
     }
 
 
     virtual vector<vector<double>> toArray();
+
+    virtual const string whoAmI() const {
+        return "MatrixTransposeView";
+    }
+
 };
 
 #endif

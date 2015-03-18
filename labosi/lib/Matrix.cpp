@@ -77,4 +77,3 @@ const MatrixPtr Matrix::parseSimple(const std::string str) {
 
     return MatrixPtr(new Matrix(values.size(), rowCount, v, true));
 }
-

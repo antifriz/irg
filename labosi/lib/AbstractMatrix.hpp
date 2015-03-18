@@ -63,6 +63,8 @@ public:
     virtual const string toString(int) const;
 
     IMatrixPtr const multiplyByConstant(double constant);
+
+    virtual const string whoAmI() const = 0;
 };
 
 typedef shared_ptr<AbstractMatrix> AbstractMatrixPtr;

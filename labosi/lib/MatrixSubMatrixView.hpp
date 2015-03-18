@@ -52,6 +52,11 @@ public:
     virtual const IMatrixPtr subMatrix(const int row, const int col, const bool liveView) const {
         return this->copy()->subMatrix(row, col, liveView)->copy();
     }
+
+    virtual const string whoAmI() const {
+        return "MatrixSubMatrixView";
+    }
+
 };
 
 #endif

@@ -28,9 +28,9 @@ vector<vector<double>> MatrixTransposeView::toArray() {
 }
 
 const IMatrixPtr MatrixTransposeView::copy() const {
-    IMatrixPtr retMatrix = this->original->newInstance(this->original->getColsCount(), this->original->getRowsCount());
+    IMatrixPtr retMatrix = this->original->newInstance(this->original->getRowsCount(), this->original->getColsCount());
     for (int j = this->getColsCount() - 1; j >= 0; --j)
         for (int i = this->getRowsCount() - 1; i >= 0; --i)
-            retMatrix->set(i, j, this->get(j, i));
+            retMatrix->set(i, j, this->get(i, j));
     return retMatrix;
 }

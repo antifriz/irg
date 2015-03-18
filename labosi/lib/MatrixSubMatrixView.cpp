@@ -25,10 +25,9 @@ double MatrixSubMatrixView::get(int row, int col) const {
 
 const IMatrixPtr MatrixSubMatrixView::copy() const {
     IMatrixPtr retMatrix = this->original->newInstance(this->original->getRowsCount() - 1, this->original->getColsCount() - 1);
-    for (int j = this->original->getColsCount() - 1; j >= 0; --j)
-        if (this->excludedCol != j)
-            for (int i = this->original->getRowsCount() - 1; i >= 0; ++i)
-                if (this->excludedRow != i)
-                    retMatrix->set(j, i, this->get(j, i));
+
+    for (int j = this->getColsCount() - 1; j >= 0; --j)
+        for (int i = this->getRowsCount() - 1; i >= 0; --i)
+            retMatrix->set(i, j, this->get(i, j));
     return retMatrix;
 }

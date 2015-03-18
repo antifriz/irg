@@ -48,28 +48,35 @@ const IMatrixPtr AbstractMatrix::nMultiply(const IMatrixPtr other) const {
     if (this->getColsCount() != other->getRowsCount())
         throw "bad AbstractMatrix::nMultiply call, can multiply only two matrices of nxa and bxn";
 
-    IMatrixPtr retMatrixPtr = this->newInstance(other->getColsCount(), this->getRowsCount());
+    IMatrixPtr retMatrixPtr = this->newInstance(this->getRowsCount(), other->getColsCount());
 
     for (int row = this->getRowsCount() - 1; row >= 0; --row)
         for (int otherCol = other->getColsCount() - 1; otherCol >= 0; --otherCol) {
             double value = 0;
 
-            for (int col = this->getColsCount() - 1; col >= 0; --col)
-                value += this->get(row, col) * this->get(col, otherCol);
-
+            for (int iter = this->getColsCount() - 1; iter >= 0; --iter) {
+                value += this->get(row, iter) * other->get(iter, otherCol);
+            }
             retMatrixPtr->set(row, otherCol, value);
         }
     return retMatrixPtr;
 }
 
 const IMatrixPtr AbstractMatrix::nInvert() const {
+
+    double determinant = this->determinant();
+
+    if (!determinant) throw "bad AbstractMatrix::nInvert call, given matrix doesn't have inverse";
+
+    IMatrixPtr ptrRoot = this->copy();
     IMatrixPtr ptr = this->copy();
-    for (int i = 0; i < ptr->getRowsCount(); ++i) {
-        for (int j = 0; j < ptr->getColsCount(); ++j) {
-            ptr->set(i, j, (i % 2 ? -1 : 1) * (j % 2 ? -1 : 1) * ptr->subMatrix(i, j, false)->determinant());
+
+    for (int i = ptr->getRowsCount() - 1; i >= 0; --i) {
+        for (int j = ptr->getColsCount() - 1; j >= 0; --j) {
+            ptr->set(i, j, (((i + j) % 2) ? -1 : 1) * ptrRoot->subMatrix(i, j, true)->determinant());
         }
     }
-    return ptr->nTranspose(false)->multiplyByConstant(1.0 / this->determinant());
+    return ptr->nTranspose(true)->multiplyByConstant(1.0 / determinant);
 }
 
 const IMatrixPtr AbstractMatrix::multiplyByConstant(double constant) {
@@ -102,13 +109,13 @@ double AbstractMatrix::determinant() const {
 
     if (this->getColsCount() == 1)
         return this->get(0, 0);
-    if (this->getColsCount() == 2)
+    if (this->getColsCount() == 2) {
         return this->get(0, 0) * this->get(1, 1) - this->get(1, 0) * this->get(0, 1);
-
+    }
     double sum = 0;
     for (int excludeCol = this->getColsCount() - 1; excludeCol >= 0; --excludeCol) {
-        MatrixSubMatrixView msmv = MatrixSubMatrixView(this->copy()->shared_from_this(), excludeCol, 0);
-        sum += ((excludeCol % 2) ? -1 : 1) * msmv.determinant();
+        MatrixSubMatrixView msmv = MatrixSubMatrixView(this->copy()->shared_from_this(), 0, excludeCol);
+        sum += ((excludeCol % 2) ? -1 : 1) * msmv.determinant() * this->get(0, excludeCol);
     }
     return sum;
 }
@@ -130,7 +137,7 @@ const string AbstractMatrix::toString(int precision) const {
     for (int row = 0; row < this->getRowsCount(); ++row) {
         strream << "[ ";
         for (int col = 0; col < this->getColsCount(); ++col) {
-            strream << this->get(col, row) << (col != this->getColsCount() - 1 ? ", " : "]");
+            strream << this->get(row, col) << (col != this->getColsCount() - 1 ? ", " : "]");
         }
         strream << std::endl;
     }

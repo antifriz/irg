@@ -64,6 +64,8 @@ public:
 
     virtual IMatrixPtr const multiplyByConstant(double constant) = 0;
 
+    virtual const string whoAmI() const = 0;
+
 };
 
 typedef shared_ptr<IMatrix> IMatrixPtr;

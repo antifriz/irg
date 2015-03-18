@@ -33,6 +33,11 @@ public:
     virtual const IMatrixPtr copy() const;
 
     virtual const IMatrixPtr newInstance(int, int) const;
+
+    virtual const string whoAmI() const {
+        return "MatrixVectorView";
+    }
+
 };
 
 #endif

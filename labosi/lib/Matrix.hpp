@@ -45,7 +45,7 @@ public:
 
 
     virtual double get(int row, int col) const {
-        return elements[row][col];
+        return elements[col][row];
     };
 
     virtual const IMatrixPtr set(int row, int col, double val) {
@@ -60,6 +60,10 @@ public:
 
 
     static const MatrixPtr parseSimple(const string str);
+
+    virtual const string whoAmI() const {
+        return "Matrix";
+    }
 };
 
 typedef shared_ptr<Matrix> MatrixPtr;
