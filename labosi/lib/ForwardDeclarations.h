@@ -5,9 +5,9 @@
 #ifndef _LINALGLIBTEST_FORWARDDECLARATIONS_H_
 #define _LINALGLIBTEST_FORWARDDECLARATIONS_H_
 
-#include <memory>
 #include <vector>
 #include <string>
+#include <memory>
 
 class IMatrix;
 

@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 set(SOURCE_FILES AbstractVector.cpp Vector.cpp AbstractMatrix.cpp Matrix.cpp MatrixSubMatrixView.cpp MatrixTransposeView.cpp MatrixVectorView.cpp VectorMatrixView.cpp)
 
 add_library(linAlgLib ${SOURCE_FILES} ForwardDeclarations.h)

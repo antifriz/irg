@@ -18,7 +18,7 @@ int main() {
 
 void zadatakdrugi() {
     IMatrixPtr lhs(new Matrix(3, 3));
-    IMatrixPtr rhs(new Matrix(1, 3));
+    IMatrixPtr rhs(new Matrix(3, 1));
 
     double d;
     cin >> d;
@@ -39,17 +39,20 @@ void zadatakdrugi() {
     lhs->set(2, 1, d);
 
     cin >> d;
-    rhs->set(0, 1, d);
+    rhs->set(1, 0, d);
 
     cin >> d;
-    rhs->set(0, 2, d);
+    lhs->set(0, 2, d);
     cin >> d;
     lhs->set(1, 2, d);
     cin >> d;
     lhs->set(2, 2, d);
 
     cin >> d;
-    rhs->set(0, 2, d);
+    rhs->set(2, 0, d);
 
-    cout << "[x,y,z] = " << lhs->nInvert()->nMultiply(rhs)->nTranspose(true) << endl;
+    cout<<lhs->toString()<<endl;
+    cout<<rhs->toString()<<endl;
+
+    cout << "[x,y,z] = " << lhs->nInvert()->nMultiply(rhs)->nTranspose(true)->toString() << endl;
 }
