@@ -10,8 +10,6 @@
 #ifndef ABSTRACT_VECTOR_H_
 #define ABSTRACT_VECTOR_H_
 
-#include <vector>
-#include <memory>
 #include "IVector.hpp"
 
 using std::shared_ptr;
@@ -62,9 +60,9 @@ public:
 
     const IVectorPtr nFromHomogeneous() const;
 
-    //IMatrix toRowMatrix(const bool) const;
+    const IMatrixPtr toRowMatrix(bool);
 
-    //IMatrix toColumnMatrix(const bool) const;
+    const IMatrixPtr toColumnMatrix(bool);
 
     vector<double> toArray() const;
 

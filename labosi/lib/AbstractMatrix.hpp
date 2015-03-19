@@ -10,18 +10,10 @@
 #ifndef ABSTRACT_MATRIX_H_
 #define ABSTRACT_MATRIX_H_
 
-#include <vector>
-#include <memory>
 #include "IMatrix.hpp"
-
-using std::shared_ptr;
-using std::vector;
-using std::string;
 
 class AbstractMatrix : public IMatrix {
 public:
-    typedef shared_ptr<AbstractMatrix> AbstractMatrixPtr;
-
     virtual int getRowsCount() const = 0;
 
     virtual int getColsCount() const = 0;
@@ -53,18 +45,18 @@ public:
 
     virtual const IMatrixPtr nInvert() const;
 
-    virtual vector<vector<double>> toArray() const;
+    virtual std::vector<std::vector<double>> toArray() const;
 
     virtual const IVectorPtr toVector(bool);
 
 
-    virtual const string toString() const;
+    virtual const std::string toString() const;
 
-    virtual const string toString(int) const;
+    virtual const std::string toString(int) const;
 
     IMatrixPtr const multiplyByConstant(double constant);
-};
 
-typedef shared_ptr<AbstractMatrix> AbstractMatrixPtr;
+    virtual const std::string whoAmI() const = 0;
+};
 
 #endif

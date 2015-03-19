@@ -19,7 +19,7 @@ private:
     bool asRowMatrix;
 
 public:
-    MatrixVectorView(const IVectorPtr original, const bool asRowMatrix) : original(original), asRowMatrix(asRowMatrix) {
+    MatrixVectorView(const IVectorPtr original, bool asRowMatrix) : original(original), asRowMatrix(asRowMatrix) {
     }
 
     virtual int getRowsCount() const;
@@ -33,6 +33,11 @@ public:
     virtual const IMatrixPtr copy() const;
 
     virtual const IMatrixPtr newInstance(int, int) const;
+
+    virtual const std::string whoAmI() const {
+        return "MatrixVectorView";
+    }
+
 };
 
 #endif

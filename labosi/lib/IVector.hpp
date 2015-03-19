@@ -10,19 +10,11 @@
 #ifndef I_VECTOR_H_
 #define I_VECTOR_H_
 
-#include <vector>
-#include <memory>
-
-//#include "IMatrix.hpp"
-
-using std::shared_ptr;
-using std::vector;
-using std::string;
-
+#include "ForwardDeclarations.h"
+#include "IMatrix.hpp"
 
 class IVector : public std::enable_shared_from_this<IVector> {
 public:
-    typedef shared_ptr<IVector> IVectorPtr;
 
     /*
     * Gets vector element at given index
@@ -105,19 +97,17 @@ public:
     */
     virtual const IVectorPtr nFromHomogeneous() const = 0;
 
-    //   virtual IMatrix toRowMatrix(const bool) const = 0;
+    virtual const IMatrixPtr toRowMatrix(bool) = 0;
 
-    //   virtual IMatrix toColumnMatrix(const bool) const = 0;
+    virtual const IMatrixPtr toColumnMatrix(bool) = 0;
 
-    virtual vector<double> toArray() const = 0;
+    virtual std::vector<double> toArray() const = 0;
 
 
-    virtual const string toString() const = 0;
+    virtual const std::string toString() const = 0;
 
-    virtual const string toString(int) const = 0;
+    virtual const std::string toString(int) const = 0;
 };
-
-typedef shared_ptr<IVector> IVectorPtr;
 
 
 #endif

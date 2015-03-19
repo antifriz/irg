@@ -10,8 +10,6 @@
 #ifndef MATRIX_TRANSPOSE_VIEW_H_
 #define MATRIX_TRANSPOSE_VIEW_H_
 
-#include <vector>
-#include <string>
 #include "AbstractMatrix.hpp"
 
 class MatrixTransposeView : public AbstractMatrix {
@@ -44,11 +42,16 @@ public:
     virtual const IMatrixPtr copy() const;
 
     virtual const IMatrixPtr newInstance(int row, int col) const {
-        return this->original->newInstance(col, row);
+        return this->original->newInstance(row, col);
     }
 
 
-    virtual vector<vector<double>> toArray();
+    virtual std::vector<std::vector<double>> toArray();
+
+    virtual const std::string whoAmI() const {
+        return "MatrixTransposeView";
+    }
+
 };
 
 #endif

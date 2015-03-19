@@ -8,6 +8,7 @@
 * @version 1.0 15/03/15
 */
 
+#include <iostream>
 #include "MatrixVectorView.hpp"
 #include "Matrix.hpp"
 
@@ -29,10 +30,10 @@ const IMatrixPtr MatrixVectorView::set(int row, int col, double val) {
 }
 
 const IMatrixPtr MatrixVectorView::copy() const {
-    IMatrixPtr retMatrixPtr = IMatrixPtr(new Matrix(0, this->original->getDimension()));
+    IMatrixPtr retMatrixPtr = IMatrixPtr(new Matrix(this->original->getDimension(), 1));
 
-    for (int i = this->original->getDimension(); i >= 0; --i)
-        retMatrixPtr->set(0, i, this->original->get(i));
+    for (int i = this->original->getDimension() - 1; i >= 0; --i)
+        retMatrixPtr->set(i, 0, this->original->get(i));
 
     return this->asRowMatrix ? retMatrixPtr : retMatrixPtr->nTranspose(false);
 }

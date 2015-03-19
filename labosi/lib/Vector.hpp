@@ -10,20 +10,15 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 
-#include <vector>
-#include <string>
-#include <memory>
 #include "AbstractVector.hpp"
 
 #define VECTOR_H_READONLY_DEFAULT false
 #define VECTOR_H_IMMUTABLE_DEFAULT true
 
-using std::vector;
-using std::shared_ptr;
 
 class Vector : public AbstractVector {
 private:
-    vector<double> elements;
+    std::vector<double> elements;
     int dimension;
     bool readOnly;
 public:
@@ -35,7 +30,7 @@ public:
     *   - can array be passed by reference // it is ignored so vector always copies input
     *   - array to be initialized with
     */
-    Vector(bool readOnly, bool inputImmutable, const vector<double> &inputArray)
+    Vector(bool readOnly, bool inputImmutable, const std::vector<double> &inputArray)
             : elements(inputArray),
               dimension((int) inputArray.size()),
               readOnly(readOnly) {
@@ -46,7 +41,7 @@ public:
     *   - array to be initialized with
     * other options default to defined values
     */
-    Vector(const vector<double> &initializerVector)
+    Vector(const std::vector<double> &initializerVector)
             : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, initializerVector) {
     }
 

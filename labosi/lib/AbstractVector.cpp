@@ -10,7 +10,9 @@
 #include <math.h>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 #include "AbstractVector.hpp"
+#include "MatrixVectorView.hpp"
 
 const IVectorPtr AbstractVector::add(const IVectorPtr other) {
     if (this->getDimension() != other->getDimension())
@@ -29,8 +31,9 @@ const IVectorPtr AbstractVector::sub(const IVectorPtr other) {
     if (this->getDimension() != other->getDimension())
         throw "bad AbstractVector::add() call; cannot add vectors with different dimension";
 
-    for (int i = this->getDimension() - 1; i >= 0; i--)
+    for (int i = this->getDimension() - 1; i >= 0; i--) {
         this->set(i, this->get(i) - other->get(i));
+    }
     return this->shared_from_this();
 }
 
@@ -80,7 +83,7 @@ double AbstractVector::norm() const {
 
 const IVectorPtr AbstractVector::normalize() {
     double norm = this->norm();
-    for (int i = this->getDimension() - 1; i >= 0; ++i)
+    for (int i = this->getDimension() - 1; i >= 0; --i)
         this->set(i, this->get(i) / norm);
     return this->shared_from_this();
 }
@@ -94,7 +97,7 @@ double AbstractVector::scalarProduct(const IVectorPtr other) const {
         throw "bad AbstractVector::scalarProduct call, vectors must be same dimension";
 
     double sum = 0;
-    for (int i = this->getDimension() - 1; i >= 0; ++i)
+    for (int i = this->getDimension() - 1; i >= 0; --i)
         sum += this->get(i) * other->get(i);
 
     return sum;
@@ -116,16 +119,17 @@ const IVectorPtr AbstractVector::nVectorProduct(const IVectorPtr other) const {
     return retVect;
 }
 
-/*
-IMatrix AbstractVector::toRowMatrix(bool const liveView) const {
-    IMatrix retMat = MatrixVectorView(*this, true);
-    return liveView ? retMat : retMat.copy();
+
+const IMatrixPtr AbstractVector::toRowMatrix(bool liveView) {
+    IMatrixPtr retMat = IMatrixPtr(new MatrixVectorView(this->shared_from_this(), true));
+
+    return liveView ? retMat : retMat->copy();
 }
 
-IMatrix AbstractVector::toColumnMatrix(bool const liveView) const {
-    IMatrix retMat = MatrixVectorView(*this, false);
-    return liveView ? retMat : retMat.copy();
-}*/
+const IMatrixPtr AbstractVector::toColumnMatrix(bool liveView) {
+    IMatrixPtr retMat = IMatrixPtr(new MatrixVectorView(this->shared_from_this(), false));
+    return liveView ? retMat : retMat->copy();
+}
 
 vector<double> AbstractVector::toArray() const {
     vector<double> retVect((unsigned int) this->getDimension());
@@ -136,14 +140,14 @@ vector<double> AbstractVector::toArray() const {
 }
 
 const std::string AbstractVector::toString() const {
-    return this->toString(3);
+    return this->toString(2);
 }
 
 const std::string AbstractVector::toString(int precision) const {
     using std::stringstream;
 
     stringstream strream;
-    strream << std::setprecision(precision);
+    strream << std::fixed << std::setprecision(precision);
     strream << "[ ";
     for (int col = 0; col < this->getDimension(); ++col)
         strream << this->get(col) << (col != this->getDimension() - 1 ? ", " : "]");
