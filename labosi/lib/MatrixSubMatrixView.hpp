@@ -10,13 +10,7 @@
 #ifndef MATRIX_SUB_MATRIX_VIEW_H_
 #define MATRIX_SUB_MATRIX_VIEW_H_
 
-#include <vector>
-#include <string>
-#include <memory>
 #include "AbstractMatrix.hpp"
-
-using std::vector;
-using std::shared_ptr;
 
 class MatrixSubMatrixView : public AbstractMatrix {
 protected:
@@ -53,7 +47,7 @@ public:
         return this->copy()->subMatrix(row, col, liveView)->copy();
     }
 
-    virtual const string whoAmI() const {
+    virtual const std::string whoAmI() const {
         return "MatrixSubMatrixView";
     }
 

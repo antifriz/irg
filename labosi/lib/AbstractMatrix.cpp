@@ -9,7 +9,6 @@
 */
 #include <vector>
 #include <string>
-#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include "AbstractMatrix.hpp"
@@ -88,8 +87,8 @@ const IMatrixPtr AbstractMatrix::multiplyByConstant(double constant) {
     return this->shared_from_this();
 }
 
-vector<vector<double>> AbstractMatrix::toArray() const {
-    vector<vector<double>> retVect((unsigned int) this->getColsCount());
+std::vector<std::vector<double>> AbstractMatrix::toArray() const {
+    std::vector<std::vector<double>> retVect((unsigned int) this->getColsCount());
 
     for (int j = this->getColsCount() - 1; j >= 0; ++j) {
         retVect[j] = vector<double>((unsigned int) this->getRowsCount());
@@ -126,14 +125,14 @@ const IMatrixPtr AbstractMatrix::subMatrix(int excludeRow, int excludeCol, bool 
 }
 
 const string AbstractMatrix::toString() const {
-    return this->toString(3);
+    return this->toString(2);
 }
 
 const string AbstractMatrix::toString(int precision) const {
     using std::stringstream;
 
     stringstream strream;
-    strream << std::setprecision(precision);
+    strream << std::fixed << std::setprecision(precision);
     for (int row = 0; row < this->getRowsCount(); ++row) {
         strream << "[ ";
         for (int col = 0; col < this->getColsCount(); ++col) {

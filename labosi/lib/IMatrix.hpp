@@ -10,18 +10,11 @@
 #ifndef I_MATRIX_H_
 #define I_MATRIX_H_
 
-#include <vector>
-#include <memory>
-
+#include "ForwardDeclarations.h"
 #include "IVector.hpp"
-
-using std::shared_ptr;
-using std::vector;
-using std::string;
 
 class IMatrix : public std::enable_shared_from_this<IMatrix> {
 public:
-    typedef shared_ptr<IMatrix> IMatrixPtr;
 
     virtual int getRowsCount() const = 0;
 
@@ -53,21 +46,20 @@ public:
 
     virtual const IMatrixPtr nInvert() const = 0;
 
-    virtual vector<vector<double>> toArray() const = 0;
+    virtual std::vector<std::vector<double>> toArray() const = 0;
 
     virtual const IVectorPtr toVector(bool) = 0;
 
 
-    virtual const string toString() const = 0;
+    virtual const std::string toString() const = 0;
 
-    virtual const string toString(int) const = 0;
+    virtual const std::string toString(int) const = 0;
 
     virtual IMatrixPtr const multiplyByConstant(double constant) = 0;
 
-    virtual const string whoAmI() const = 0;
+    virtual const std::string whoAmI() const = 0;
 
 };
 
-typedef shared_ptr<IMatrix> IMatrixPtr;
 
 #endif

@@ -7,14 +7,12 @@
 * @author Ivan Jurin
 * @version 1.0 15/03/15
 */
-#include <vector>
-#include <string>
 #include <sstream>
 #include <stdlib.h>
-#include <iostream>
 #include "Matrix.hpp"
 
-Matrix::Matrix(const int rows, const int cols) : cols(cols), rows(rows) {
+Matrix::Matrix(int rows, int cols) : cols(cols), rows(rows) {
+    using std::vector;
     this->elements = vector<vector<double>>((unsigned int) cols);
     for (int j = cols - 1; j >= 0; --j) {
         this->elements[j] = vector<double>((unsigned int) rows);

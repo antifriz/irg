@@ -10,27 +10,22 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
-#include <vector>
-#include <string>
 #include "AbstractMatrix.hpp"
-
-using std::vector;
-using std::string;
 
 class Matrix : public AbstractMatrix {
 protected:
     int cols;
     int rows;
-    vector<vector<double>> elements;
+    std::vector<std::vector<double>> elements;
 public:
-    typedef shared_ptr<Matrix> MatrixPtr;
+    typedef std::shared_ptr<Matrix> MatrixPtr;
 
-    Matrix(const int, const int);
+    Matrix(int, int);
 
     /*
     * rawData is representation of matrix, constructor always copies the rawData into Matrix class
     */
-    Matrix(int rows, int cols, const vector<vector<double>> &rawData, bool)
+    Matrix(int rows, int cols, const std::vector<std::vector<double>> &rawData, bool)
             : cols(cols), rows(rows), elements(rawData) {
     };
 
@@ -59,13 +54,13 @@ public:
     virtual const IMatrixPtr newInstance(int, int) const;
 
 
-    static const MatrixPtr parseSimple(const string str);
+    static const MatrixPtr parseSimple(const std::string str);
 
-    virtual const string whoAmI() const {
+    virtual const std::string whoAmI() const {
         return "Matrix";
     }
 };
 
-typedef shared_ptr<Matrix> MatrixPtr;
+typedef std::shared_ptr<Matrix> MatrixPtr;
 
 #endif
