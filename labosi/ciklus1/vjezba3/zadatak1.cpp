@@ -3,7 +3,6 @@
 //
 #include <GL/glut.h>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
@@ -23,10 +22,10 @@ int zadavanje_linije__stanje = 0;
 vector<linijaS> linije;
 
 // zastavica kontrola
-int kontrola = false;
+int kontrola = 0;
 
 // zastavica odsijecanje
-int odsijecanje = false;
+int odsijecanje = 0;
 
 void display();
 
@@ -53,12 +52,16 @@ linijaS *odsijeciCohenSutherland(linijaS *);
 
 int dohvatiCSKodTocke(int, int);
 
+void nacrtajPodprozor();
+
+void odsijeciCohenSutherlandPodfunkcija(int xs, int ys, int xe, int ye, int kod, int *xPtr, int *yPtr);
+
 int window_width = 200;
 int window_height = 200;
-int subwindow_x1 = 50;
-int subwindow_x2 = 150;
-int subwindow_y1 = 50;
-int subwindow_y2 = 150;
+int subwindow_x1;
+int subwindow_x2;
+int subwindow_y1;
+int subwindow_y2;
 
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
@@ -70,6 +73,11 @@ int main(int argc, char *argv[]) {
     glutReshapeFunc(reshape);
     glutKeyboardFunc(myKeyboard);
     glutMouseFunc(myMouse);
+
+    subwindow_x1 = (int) (1 / 4. * window_width);
+    subwindow_x2 = (int) (3 / 4. * window_width);
+    subwindow_y1 = (int) (1 / 4. * window_height);
+    subwindow_y2 = (int) (3 / 4. * window_height);
 
     glutMainLoop();
 }
@@ -91,6 +99,13 @@ void reshape(int width, int height) {
     glLoadIdentity();
     glOrtho(0, width - 1, height - 1, 0, 0, 1);
     glMatrixMode(GL_MODELVIEW);
+
+
+    subwindow_x1 = (int) (1 / 4. * width);
+    subwindow_x2 = (int) (3 / 4. * width);
+    subwindow_y1 = (int) (1 / 4. * height);
+    subwindow_y2 = (int) (3 / 4. * height);
+    glutPostRedisplay();
 }
 
 
@@ -103,8 +118,8 @@ void renderScene() {
 }
 
 void nacrtajLiniju(linijaS r) {
+    if (odsijecanje) nacrtajPodprozor();
 
-    int preskoci = 0;
     linijaS *s = odsijecanje ? odsijeciCohenSutherland(&r) : &r;
 
     if (s == nullptr) return;
@@ -124,25 +139,71 @@ void nacrtajLiniju(linijaS r) {
     glEnd();
 }
 
+void nacrtajPodprozor() {
+    glColor3f(0.f, 1.f, 0.f);
+    glBegin(GL_LINE_LOOP);
+    {
+        glVertex2i(subwindow_x1, subwindow_y1);
+        glVertex2i(subwindow_x2, subwindow_y1);
+        glVertex2i(subwindow_x2, subwindow_y2);
+        glVertex2i(subwindow_x1, subwindow_y2);
+    }
+    glEnd();
+}
+
 inline linijaS *odsijeciCohenSutherland(linijaS *s) {
-    int kodS = dohvatiCSKodTocke(s->Lx[0], s->Ly[0]);
-    int kodE = dohvatiCSKodTocke(s->Lx[1], s->Ly[1]);
+    int xs = s->Lx[0], ys = s->Ly[0], xe = s->Lx[1], ye = s->Ly[1];
+
+    int kodS = dohvatiCSKodTocke(xs, ys);
+    int kodE = dohvatiCSKodTocke(xe, ye);
 
     //ako je cijela linija unutar podprozora, nacrtaj ju
     if (!kodS && !kodE) return s;
 
-    int result = kodE & kodS;
-    if (!result) return nullptr;
+    int result = (kodE & kodS);
+    if (result) return nullptr;
 
+    odsijeciCohenSutherlandPodfunkcija(xs, ys, xe, ye, kodS, &(s->Lx[0]), &(s->Ly[0]));
+    odsijeciCohenSutherlandPodfunkcija(xs, ys, xe, ye, kodE, &(s->Lx[1]), &(s->Ly[1]));
+    return s;
+}
 
+void odsijeciCohenSutherlandPodfunkcija(int xs, int ys, int xe, int ye, int kod, int *xPtr, int *yPtr) {
+    int x = *xPtr, y = *yPtr;
+    if ((kod & 0x1000) == 0x1000) {
+        x = (int) ((xe - xs) / (double) (ye - ys) * (subwindow_y1 - ys) + xs);
+        y = subwindow_y1;
+        kod = dohvatiCSKodTocke(x, y);
+    }
+    if ((kod & 0x0100) == 0x0100) {
+        x = (int) ((xe - xs) / (double) (ye - ys) * (subwindow_y2 - ys) + xs);
+        y = subwindow_y2;
+        kod = dohvatiCSKodTocke(x, y);
+
+    }
+    if ((kod & 0x0001) == 0x0001) {
+        y = (int) ((ye - ys) / (double) (xe - xs) * (subwindow_x1 - xs) + ys);
+        x = subwindow_x1;
+        kod = dohvatiCSKodTocke(x, y);
+
+    }
+    if ((kod & 0x0010) == 0x0010) {
+        y = (int) ((ye - ys) / (double) (xe - xs) * (subwindow_x2 - xs) + ys);
+        x = subwindow_x2;
+
+    }
+    *xPtr = x;
+    *yPtr = y;
 }
 
 inline int dohvatiCSKodTocke(int x, int y) {
     int kod = 0;
-    if (x < subwindow_x1) kod |= 1000;
-    if (x > subwindow_x2) kod |= 0100;
-    if (y < subwindow_y1) kod |= 0010;
-    if (y > subwindow_y2) kod |= 0001;
+
+    if (y < subwindow_y1) kod |= 0x1000;
+    if (y > subwindow_y2) kod |= 0x0100;
+    if (x > subwindow_x2) kod |= 0x0010;
+    if (x < subwindow_x1) kod |= 0x0001;
+
     return kod;
 }
 
@@ -253,10 +314,10 @@ void myMouse(int button, int state, int x, int y) {
 
         if (!zadavanje_linije__stanje) {
             linije.push_back(trenutnaLinija);
-            cout << "Tocka 2: " << x << ", " << y << endl;
-        } else
-            cout << "Tocka 1: " << x << ", " << y << endl;
-
+            //cout << "Tocka 2: " << x << ", " << y << endl;
+        } else {
+            //   cout << "Tocka 1: " << x << ", " << y << endl;
+        }
         glutPostRedisplay();
     }
         //	Desna tipka - odustani od crtanja.
