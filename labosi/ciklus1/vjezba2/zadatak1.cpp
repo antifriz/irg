@@ -3,7 +3,6 @@
 //
 #include <GL/glut.h>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
@@ -122,7 +121,7 @@ void nacrtajTrokut(trokutS s) {
 
 
 void nacrtajPokazivacaBoje() {
-    const int sirina = 50;
+    const int sirina = 5;
 
     // u gornjem desnom kutu nacrtaj pokazivaca boje
 
@@ -141,7 +140,6 @@ void nacrtajPokazivacaBoje() {
 
 void mjenjajBoju(boje boja) {
 
-    cout << boja << endl;
     switch (boja) {
         case crvena:
             glColor3f(1.0f, 0.0f, 0.0f);

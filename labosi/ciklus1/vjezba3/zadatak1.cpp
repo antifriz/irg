@@ -100,7 +100,6 @@ void reshape(int width, int height) {
     glOrtho(0, width - 1, height - 1, 0, 0, 1);
     glMatrixMode(GL_MODELVIEW);
 
-
     subwindow_x1 = (int) (1 / 4. * width);
     subwindow_x2 = (int) (3 / 4. * width);
     subwindow_y1 = (int) (1 / 4. * height);
@@ -129,6 +128,7 @@ void nacrtajLiniju(linijaS r) {
 
     // crtaj primitivima samo ako je kontrola == true
     if (!kontrola) return;
+
     // linija GL primitivima, 4 slikovna elementa desno
     glColor3f(1, 0, 0);
     glBegin(GL_LINE_STRIP);

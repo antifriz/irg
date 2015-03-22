@@ -72,7 +72,7 @@ const IMatrixPtr AbstractMatrix::nInvert() const {
 
     for (int i = ptr->getRowsCount() - 1; i >= 0; --i) {
         for (int j = ptr->getColsCount() - 1; j >= 0; --j) {
-            ptr->set(i, j, (((i + j) % 2) ? -1 : 1) * ptrRoot->subMatrix(i, j, true)->determinant());
+            ptr->set(i, j, (((i + j) >> 1) ? -1 : 1) * ptrRoot->subMatrix(i, j, true)->determinant()); // pouzdajem se u kompajlerovu optimizaciju
         }
     }
     return ptr->nTranspose(true)->multiplyByConstant(1.0 / determinant);
