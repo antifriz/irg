@@ -113,7 +113,7 @@ const IVectorPtr AbstractVector::nVectorProduct(const IVectorPtr other) const {
     IVectorPtr retVect = this->newInstance(3);
 
     retVect->set(0, this->get(1) * other->get(2) - this->get(2) * other->get(1));
-    retVect->set(1, this->get(0) * other->get(2) - this->get(2) * other->get(0));
+    retVect->set(1, -this->get(0) * other->get(2) + this->get(2) * other->get(0));
     retVect->set(2, this->get(0) * other->get(1) - this->get(1) * other->get(0));
 
     return retVect;
