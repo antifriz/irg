@@ -21,8 +21,44 @@ private:
     std::vector<double> elements;
     int dimension;
     bool readOnly;
+
+    Vector(): dimension(0),readOnly(VECTOR_H_READONLY_DEFAULT){
+
+    }
+
+
 public:
+    Vector(double e1):Vector()
+    {
+        elements.push_back(e1);
+        dimension = (int) elements.size();
+    }
+    Vector(double e1,double e2):Vector(e1)
+    {
+        elements.push_back(e2);
+        dimension = (int) elements.size();
+    }
+    Vector(double e1,double e2,double e3):Vector(e1,e2)
+    {
+        elements.push_back(e3);
+        dimension = (int) elements.size();
+    }
+
     typedef shared_ptr<Vector> VectorPtr;
+
+    static VectorPtr Create(double e1){
+        return std::make_shared<Vector>(e1);
+    }
+
+    static VectorPtr Create(double e1,double e2){
+        return std::make_shared<Vector>(e1,e2);
+    }
+
+    static VectorPtr Create(double e1,double e2,double e3){
+        return std::make_shared<Vector>(e1,e2,e3);
+    }
+
+
 
     /*
     * constructor which takes three values:
@@ -44,6 +80,8 @@ public:
     Vector(const std::vector<double> &initializerVector)
             : Vector(VECTOR_H_READONLY_DEFAULT, VECTOR_H_IMMUTABLE_DEFAULT, initializerVector) {
     }
+
+
 
 
     /*
