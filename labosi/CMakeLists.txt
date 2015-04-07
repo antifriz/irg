@@ -3,4 +3,5 @@ project(irg.labosi)
 
 add_subdirectory(lib)
 add_subdirectory(ciklus1)
+add_subdirectory(ciklus2)
 
