@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <fstream>
 #include <memory>
+#include <sstream>
 
 #include "Vector.hpp"
 
@@ -38,6 +39,13 @@ public:
     enum Relation {
         In, Out, Edge
     };
+    enum Axis {
+        X, Y, Z
+    };
+
+    static int axisId(Axis axis) {
+        return (int) axis;
+    }
 };
 
 
@@ -51,14 +59,14 @@ private:
     IVectorPtr normal;
     double D;
 protected:
-    Triangle(){}
+    Triangle() {
+    }
+
 public:
     virtual Vertex::Relation vertexRelation(VertexPtr vertex) const {
         auto relation = normal->scalarProduct(vertex) + D;
         return relation > 0 ? Vertex::Relation::Out : (relation < 0) ? Vertex::Relation::In : Vertex::Relation::Edge;
     };
-
-
 
 
     static TrianglePtr Create(const VertexPtr& a, const VertexPtr& b, const VertexPtr& c) {
@@ -83,25 +91,41 @@ public:
         return normal;
     }
 
-
+    VertexPtr vertexAt(size_t idx) {
+        return vertices.at(idx);
+    }
 };
 
 class Object3D;
 
 typedef shared_ptr<Object3D> Object3DPtr;
 
-class Object3D {
+class Object3D : public enable_shared_from_this<Object3D> {
 private:
     vector<TrianglePtr> faces;
     vector<VertexPtr> vertices;
 
 protected:
-   Object3D(){}
+    Object3D() {
+    }
+
+
+    size_t vertexIndex(VertexPtr vertex) {
+        auto it = find(vertices.begin(), vertices.end(), vertex);
+        return (size_t) distance(vertices.begin(), it);
+    }
 
 public:
 
-    static Object3DPtr Create() {
+    static Object3DPtr create() {
         return _Create<Object3D>();
+    }
+
+    Object3DPtr copy() {
+        auto obj = create();
+        obj->faces = faces;
+        obj->vertices = vertices;
+        return obj;
     }
 
     void addVertex(VertexPtr vertex) {
@@ -124,7 +148,7 @@ public:
         if (!objFile.is_open())
             throw "Unable to open file";
 
-        Object3DPtr retObj = Create();
+        Object3DPtr retObj = create();
 
         char type;
         double x, y, z;
@@ -154,6 +178,49 @@ public:
             isEdge |= (relation == Vertex::Relation::Edge);
         }
         return isEdge ? Vertex::Relation::Edge : Vertex::Relation::In;
+    }
+
+    string dumpOBJ() {
+        ostringstream os;
+        for (auto& v: vertices)
+            os << "v " << v->get(0) << " " << v->get(1) << " " << v->get(2) << endl;
+        for (auto& f: faces)
+            os << "f " << vertexIndex(f->vertexAt(0)) + 1 << " " << vertexIndex(f->vertexAt(1)) + 1 << " " << vertexIndex(f->vertexAt(2)) + 1 << endl;
+        return os.str();
+    };
+
+    double extremeVertex(Vertex::Axis axis, bool isMax) {
+        if (isMax)
+            return (*max_element(vertices.begin(), vertices.end(), [axis](VertexPtr a, VertexPtr b) {
+                return a->get(Vertex::axisId(axis)) < b->get(Vertex::axisId(axis));
+            }))->get(Vertex::axisId(axis));
+        else
+            return (*min_element(vertices.begin(), vertices.end(), [axis](VertexPtr a, VertexPtr b) {
+                return a->get(Vertex::axisId(axis)) < b->get(Vertex::axisId(axis));
+            }))->get(Vertex::axisId(axis));
+    }
+
+    Object3DPtr normalize() {
+        auto maxX = extremeVertex(Vertex::Axis::X, true);
+        auto maxY = extremeVertex(Vertex::Axis::Y, true);
+        auto maxZ = extremeVertex(Vertex::Axis::Z, true);
+        auto minX = extremeVertex(Vertex::Axis::X, false);
+        auto minY = extremeVertex(Vertex::Axis::Y, false);
+        auto minZ = extremeVertex(Vertex::Axis::Z, false);
+        auto midX = maxX / 2 + minX / 2;
+        auto midY = maxY / 2 + minY / 2;
+        auto midZ = maxZ / 2 + minZ / 2;
+        auto midV = Vector::Create(midX, midY, midZ);
+
+        auto rangeX = maxX - minX;
+        auto rangeY = maxY - minY;
+        auto rangeZ = maxZ - minZ;
+
+        auto scaleFactor = 2 / max({rangeX, rangeY, rangeZ});
+
+        for (auto& vertex: vertices)
+            vertex->sub(midV)->scalarMultiply(scaleFactor);
+        return shared_from_this();
     }
 };
 
@@ -193,7 +260,7 @@ void waitForCommand() {
 }
 
 void executeUnknownCommand(string cmdStr) {
-    cout << "Command: "<<cmdStr<<" is invalid command"<<endl;
+    cout << "Command: " << cmdStr << " is invalid command" << endl;
     cout << "usage:" << endl;
     cout << "v X Y Z" << endl;
     cout << "normalize" << endl;
@@ -207,8 +274,7 @@ void showUsage() {
 
 void executeVertexBodyRelation(string s) {
     string msg;
-    switch(model->convexVertexRelation(Vertex::parseSimple(s)))
-    {
+    switch (model->convexVertexRelation(Vertex::parseSimple(s))) {
         case Vertex::Relation::Out:
             msg = "Tocka je izvan tijela";
             break;
@@ -220,17 +286,19 @@ void executeVertexBodyRelation(string s) {
             msg = "Tocka je na rubu tijela";
             break;
     }
-    cout<<msg<<endl;
+    cout << msg << endl;
 }
 
 void executeNormalize() {
-
+    auto obj = model->copy();
+    obj->normalize();
+    cout << obj->dumpOBJ() << endl;
 }
 
 string getCommand() {
     cout << "> ";
 
     string command;
-    getline(cin,command);
+    getline(cin, command);
     return command;
 }

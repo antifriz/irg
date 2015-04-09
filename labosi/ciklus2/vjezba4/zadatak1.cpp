@@ -12,13 +12,22 @@
 using namespace std;
 
 
+#define WINDOW_X 200
+#define WINDOW_Y 150
+#define WINDOW_W 640
+#define WINDOW_H 480
+#define WINDOW_NAME "Program"
+
+
 #define IZVAN -1
 #define RUB 0
 #define UNUTAR 1
 
+int mouse_x = 0, mouse_y = 0;
+
 
 int stanje = 1;
-bool popunjavanje = true;
+bool popunjavanje = false;
 bool konveksnost = false;
 
 typedef struct {
@@ -42,6 +51,8 @@ void renderScene();
 
 void myMouse(int, int, int, int);
 
+void myPassive(int x, int y);
+
 void myKeyboard(unsigned char, int, int);
 
 void izracunajKoefKonvPoly();
@@ -52,18 +63,11 @@ int odnosTockeIPoligona(tocka2dT& tocka);
 
 bool isCwPoly();
 
-bool jeKonveksan(polyT& t);
+bool jeKonveksan();
 
 bool zadrzavaKonveksnost(tocka2dT& vrh);
 
-
 void nacrtajPopunjeniPoly();
-
-#define WINDOW_X 200
-#define WINDOW_Y 150
-#define WINDOW_W 640
-#define WINDOW_H 480
-#define WINDOW_NAME "Program"
 
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
@@ -76,6 +80,7 @@ int main(int argc, char *argv[]) {
     glutReshapeFunc(reshape);
     glutKeyboardFunc(myKeyboard);
     glutMouseFunc(myMouse);
+    glutPassiveMotionFunc(myPassive);
 
     glutMainLoop();
     return 0;
@@ -83,10 +88,7 @@ int main(int argc, char *argv[]) {
 
 
 void display() {
-    if (konveksnost)
-        glClearColor(0.5f, 1.0f, 0.5f, 1.0f);
-    else
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    if (konveksnost) glClearColor(0.5f, 1.0f, 0.5f, 1.0f); else glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
@@ -110,18 +112,16 @@ void reshape(int width, int height) {
 
 void renderScene() {
     glColor3f(0.0f, 0.0f, 0.0f);
-    if (popunjavanje) {
+    if (popunjavanje)
         nacrtajPopunjeniPoly();
-    } else {
+    else {
         glBegin(GL_LINE_LOOP);
         {
-
-            for (auto& elem: poly) {
+            for (auto& elem: poly)
                 glVertex2i((GLint) elem.vrh->get(0), (GLint) elem.vrh->get(1));
-            }
+            if (stanje == 1)glVertex2i(mouse_x, mouse_y);
         }
         glEnd();
-
     }
 }
 
@@ -150,12 +150,12 @@ void nacrtajPopunjeniPoly() {
                 if (it0->vrh->get(1) == y) {
                     L = it0->vrh->get(0);
                     D = it->vrh->get(0);
-                    if (L > D) swap(L, D);
+                    //if (L > D) swap(L, D);
                     break;
                 }
             } else {
                 auto x = round(-it0->brid->get(1) * y - it0->brid->get(2)) / it0->brid->get(0);
-                (isCW && it0->lijevi) || (!isCW && !it0->lijevi) ? (L = max(L, x)) : (D = min(D, x));
+                ((isCW && it0->lijevi) || (!isCW && !it0->lijevi)) ? (L = max(L, x)) : (D = min(D, x));
             }
             it0 = it;
         }
@@ -169,12 +169,14 @@ void nacrtajPopunjeniPoly() {
     }
 }
 
-
 void myMouse(int button, int state, int x, int y) {
+
     // ako je pritisnuta lijeva tipka misa
     y = WINDOW_H - y;
+
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         tocka2dT vrh = Vector::Create(x, y, 1);
+
 
         if (stanje == 1) {
             if (konveksnost && !zadrzavaKonveksnost(vrh)) {
@@ -191,7 +193,7 @@ void myMouse(int button, int state, int x, int y) {
 
             izracunajKoefKonvPoly();
 
-            glutPostRedisplay();
+//            glutPostRedisplay();
         } else {
             switch (odnosTockeIPoligona(vrh)) {
                 case UNUTAR:
@@ -212,7 +214,15 @@ void myMouse(int button, int state, int x, int y) {
         //	Desna tipka - odustani od crtanja.
     else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
     }
+
 }
+
+void myPassive(int x, int y) {
+    mouse_x = x;
+    mouse_y = WINDOW_H - y;
+    glutPostRedisplay();
+}
+
 
 void myKeyboard(unsigned char theKey, int, int) {
     switch (theKey) {
@@ -224,7 +234,7 @@ void myKeyboard(unsigned char theKey, int, int) {
             if (konveksnost) {
                 konveksnost = false;
             } else {
-                if (!jeKonveksan(poly)) {
+                if (!jeKonveksan()) {
                     cout << "postavljanje konveksnosti na true nije moguce, poligon nije konveksan" << endl;
                     break;
                 }
@@ -297,34 +307,27 @@ bool isCwPoly() {
 bool zadrzavaKonveksnost(tocka2dT& vrh) {
     if (poly.size() < 3) return true;
 
-    if (odnosTockeIBrida(vrh, (poly.end() - 2)->brid, isCwPoly()) == IZVAN) return false;
-
-    if (odnosTockeIBrida(vrh, poly.front().brid, isCwPoly()) == IZVAN) return false;
-
-    return odnosTockeIBrida(vrh, poly.back().brid, isCwPoly()) != UNUTAR;
+    bool cw = isCwPoly();
+    if (odnosTockeIBrida(vrh, (poly.end() - 2)->brid, cw) == IZVAN) return false;
+    if (odnosTockeIBrida(vrh, poly.front().brid, cw) == IZVAN) return false;
+    return odnosTockeIBrida(vrh, poly.back().brid, cw) != UNUTAR;
 }
 
 int odnosTockeIBrida(tocka2dT& tocka, brid2dT& brid, bool isCw) {
     auto sp = tocka->scalarProduct(brid);
 
-    cout << "ispitujem odnos" << endl;
-
-
     // je li na rubu
-    if (sp == RUB)
-        return RUB;
+    if (sp == RUB) return RUB;
 
     // s obzirom na orijentaciju ispitaj je li izvan, ako je izadi
-    return isCw ? sp > 0 : sp < 0 ? IZVAN : UNUTAR;
+    return (isCw ? sp > 0 : sp < 0) ? IZVAN : UNUTAR;
 }
 
 
 int odnosTockeIPoligona(tocka2dT& tocka) {
-    cout << "pokret1" << endl;
 
     if (poly.begin() + 1 >= poly.end())
         return UNUTAR;
-    cout << "pokret" << endl;
     bool isCw = isCwPoly();
     bool edge = false;
     for (auto it = poly.begin(); it < poly.end(); it++) {
@@ -335,12 +338,22 @@ int odnosTockeIPoligona(tocka2dT& tocka) {
             edge = true;
             continue;
         }
-        if (odnos == IZVAN)
-            return IZVAN;
+        if (odnos == IZVAN) return IZVAN;
     }
     return edge ? RUB : UNUTAR;
 }
 
-bool jeKonveksan(polyT& t) {
-    return true;
+bool jeKonveksan() {
+    if (poly.size() < 3) return 1;
+    int ispod = 0;
+    int iznad = 0;
+    int n = (int) poly.size();
+
+    int i0 = n - 2;
+    for (int i = 0; i < n; ++i) {
+        if (i0 >= n) i0 = 0;
+        auto r = poly[i0].brid->scalarProduct(poly[i].vrh);
+        if (r < 0) ispod++; else if (r > 0) iznad++;
+    }
+    return iznad == 0 || ispod == 0;
 }
