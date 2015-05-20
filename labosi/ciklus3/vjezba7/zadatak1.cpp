@@ -104,11 +104,15 @@ public:
         return D;
     }
 
+    const IVectorPtr getPolyCenter() const{
+        return vertexAt(0)->nAdd(vertexAt(1))->nAdd(vertexAt(2))->scalarMultiply(1/3.0f);
+    }
+
     const IVectorPtr getPlaneNormal() const {
         return normal;
     }
 
-    VertexPtr vertexAt(size_t idx) {
+    const VertexPtr vertexAt(size_t idx) const {
         return vertices.at(idx);
     }
 
@@ -143,36 +147,60 @@ private:
         {
             case 2:
             {
-                auto tp =IRG::lookAtMatrix(IVectorPtr(new Vector(r*cos(angle),4,r*sin(angle))),IVectorPtr(new Vector(0,0,0)),IVectorPtr(new Vector(0,1,0)));
+                shared_ptr<IVector> eye = IVectorPtr(new Vector(r*cos(angle),4,r*sin(angle)));
+                auto tp =IRG::lookAtMatrix(eye,IVectorPtr(new Vector(0,0,0)),IVectorPtr(new Vector(0,1,0)));
                 auto pr = IRG::buildFrustumMatrix(-0.5f,+0.5f,-0.5f,+0.5f,1,100);
                 m = tp->nMultiply(pr);
-                //std::cout<<m->toString()<<std::endl;
 
+                if(odbacivanje == 2)
+                    current->determineFaceVisibilities1(eye);
+                else if(odbacivanje==3)
+                    current->determineFaceVisibilities2(eye);
+
+                glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
             }
                 break;
             case 1:
                 m = Matrix::parseSimple("1 0 0 0 | 0 1 0 0 | 0 0 1 0 | 0 0 0 1");
                 gluLookAt(3,4,1,0,0,0,0,1,0);
+
+                //glFrontFace(GL_CCW);
+                glPolygonMode(GL_FRONT,GL_LINE);
+                glEnable(GL_CULL_FACE);
+
                 break;
             default:
                 throw "Unknown inacica";
         }
-        //glFrontFace(GL_CCW);
-        glPolygonMode(GL_FRONT,GL_LINE);
-        glEnable(GL_CULL_FACE);
+
 
         glColor3f(1,0,0);
         {
             for(TrianglePtr face:Object3D::current->faces)
             {
-                glBegin(GL_POLYGON);
+                if(inacica == 2&& (odbacivanje == 2 || odbacivanje ==3)&&!face->visible)
+                    continue;
 
+                std::vector<VertexPtr> vertices;
                 for (VertexPtr vertex0:face->getVertices())
                 {
                     IVectorPtr vectorPtr(new Vector(vertex0->get(0),vertex0->get(1),vertex0->get(2),1));
                     IVectorPtr a4 = vectorPtr->toRowMatrix(false)->nMultiply(m)->toVector(false)->nFromHomogeneous();
-                    glVertex3f((GLfloat) a4->get(0), (GLfloat) a4->get(1), (GLfloat) a4->get(2));
+                    vertices.push_back(a4);
                 }
+  /*              IVectorPtr center = face->getPolyCenter()->toRowMatrix(false)->nMultiply(m)->toVector(false)->nFromHomogeneous();
+                glBegin(GL_POINTS);
+                    glVertex3f((GLfloat) center->get(0), (GLfloat) center->get(1), (GLfloat) center->get(2));
+                glEnd();*/
+
+
+                if(inacica==2 && odbacivanje ==4)
+                    if (!IRG::isAntiClockwise(vertices))
+                        continue;
+
+                glBegin(GL_POLYGON);
+                for(VertexPtr v :vertices)
+                    glVertex3f((GLfloat) v->get(0), (GLfloat) v->get(1), (GLfloat) v->get(2));
                 glEnd();
             }
         }
@@ -200,6 +228,26 @@ private:
 
             case 'l':
                 angle -=increment;
+                glutPostRedisplay();
+                break;
+            case '1':
+            std::cout<<"bez odbacivanja"<<std::endl;
+                odbacivanje=1;
+                glutPostRedisplay();
+                break;
+            case '2':
+                std::cout<<"odbacivanje1"<<std::endl;
+                odbacivanje=2;
+                glutPostRedisplay();
+                break;
+            case '3':
+                std::cout<<"odbacivanje2"<<std::endl;
+                odbacivanje=3;
+                glutPostRedisplay();
+                break;
+            case '4':
+                std::cout<<"odbacivanje3"<<std::endl;
+                odbacivanje=4;
                 glutPostRedisplay();
                 break;
             case 27:
@@ -243,6 +291,17 @@ protected:
 
 public:
     static int inacica;
+    static int odbacivanje;
+
+
+    void determineFaceVisibilities1(IVectorPtr eye){
+        for(TrianglePtr &face:faces)
+            face->visible = face->getPlaneNormal()->scalarProduct(eye) + face->getPlaneD() > 0;
+    }
+    void determineFaceVisibilities2(IVectorPtr eye){
+        for(TrianglePtr &face:faces)
+            face->visible = eye->nSub(face->getPolyCenter())->scalarProduct(face->getPlaneNormal())>0;
+    }
 
 
     static void glutShow(const Object3DPtr &ptr){
@@ -375,6 +434,7 @@ public:
 
 Object3DPtr  Object3D::current = NULL;
 int  Object3D::inacica = 1;
+int  Object3D::odbacivanje = 1;
 
 Object3DPtr model;
 
