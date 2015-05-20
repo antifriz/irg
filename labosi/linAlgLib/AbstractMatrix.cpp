@@ -11,6 +11,8 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
+#include <assert.h>
 #include "AbstractMatrix.hpp"
 #include "MatrixSubMatrixView.hpp"
 #include "MatrixTransposeView.hpp"
@@ -63,6 +65,11 @@ const IMatrixPtr AbstractMatrix::nMultiply(const IMatrixPtr other) const {
 
 const IMatrixPtr AbstractMatrix::nInvert() const {
 
+    assert(getRowsCount() == getColsCount());
+
+    if(getRowsCount() == 1)
+        return this->copy();
+
     double determinant = this->determinant();
 
     if (!determinant) throw "bad AbstractMatrix::nInvert call, given matrix doesn't have inverse";
@@ -72,9 +79,10 @@ const IMatrixPtr AbstractMatrix::nInvert() const {
 
     for (int i = ptr->getRowsCount() - 1; i >= 0; --i) {
         for (int j = ptr->getColsCount() - 1; j >= 0; --j) {
-            ptr->set(i, j, (((i + j) >> 1) ? -1 : 1) * ptrRoot->subMatrix(i, j, true)->determinant()); // pouzdajem se u kompajlerovu optimizaciju
+            ptr->set(i, j, (((i + j) % 2) ? -1 : 1) * ptrRoot->subMatrix(i, j, true)->determinant());
         }
     }
+
     return ptr->nTranspose(true)->multiplyByConstant(1.0 / determinant);
 }
 
