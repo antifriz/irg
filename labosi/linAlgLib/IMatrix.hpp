@@ -59,6 +59,8 @@ public:
 
     virtual const std::string whoAmI() const = 0;
 
+
+
 };
 
 

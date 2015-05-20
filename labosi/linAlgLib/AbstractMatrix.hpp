@@ -56,6 +56,7 @@ public:
 
     IMatrixPtr const multiplyByConstant(double constant);
 
+
     virtual const std::string whoAmI() const = 0;
 };
 

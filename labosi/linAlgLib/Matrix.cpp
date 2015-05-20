@@ -9,7 +9,9 @@
 */
 #include <sstream>
 #include <stdlib.h>
+#include <assert.h>
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 Matrix::Matrix(int rows, int cols) : cols(cols), rows(rows) {
     using std::vector;
@@ -48,7 +50,7 @@ const MatrixPtr Matrix::parseSimple(const std::string str) {
     while (getline(ss, item, MATRIX_H_STRING_DELIMITER_CELL)) {
         if (item[0] == MATRIX_H_STRING_DELIMITER_ROW) {
             if (rowCount == -1)
-                rowCount = values[0].size();
+                rowCount = (int) values[0].size();
             else if (rowCount != (int) values[row].size())
                 throw "bad Matrix::parseSimple call, string not formatted well";
             row++;
@@ -73,5 +75,32 @@ const MatrixPtr Matrix::parseSimple(const std::string str) {
         }
     }
 
-    return MatrixPtr(new Matrix(values.size(), rowCount, v, true));
+    return MatrixPtr(new Matrix((int) values.size(), rowCount, v, true));
+}
+
+MatrixPtr Matrix::fromContainerOfVectors(const std::vector<IVectorPtr> container, bool rowVectors) {
+    assert(rowVectors);
+    assert(container.size()>0);
+    MatrixPtr m(new Matrix((int) container.size(),container.at(0)->getDimension()));
+    for (size_t i = 0; i < container.size(); ++i) {
+        auto &v = container.at((unsigned long) i);
+        for (int j = 0; j < v->getDimension(); ++j) {
+            m->set((int) i,j,v->get(j));
+        }
+    }
+    return m;
+}
+
+std::vector<IVectorPtr> Matrix::toContainerOfVectors(const IMatrixPtr & matrix, bool rowVectors){
+    assert(rowVectors);
+    std::vector<IVectorPtr> container;
+
+    for (int i = 0; i < matrix->getRowsCount(); ++i) {
+        IVectorPtr v(new Vector(matrix->getColsCount()));
+        for (int j = 0; j < matrix->getColsCount(); ++j) {
+            v->set(j,matrix->get(i,j));
+        }
+        container.push_back(v);
+    }
+    return container;
 }

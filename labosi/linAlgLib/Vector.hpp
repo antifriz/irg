@@ -28,6 +28,12 @@ private:
 
 
 public:
+    Vector(int dimension):dimension(dimension),readOnly(false){
+        for (int i = 0; i < dimension; ++i) {
+            elements.push_back(0);
+        }
+    }
+
     Vector(double e1):Vector()
     {
         elements.push_back(e1);
@@ -61,6 +67,10 @@ public:
 
     static VectorPtr Create(double e1,double e2,double e3){
         return std::make_shared<Vector>(e1,e2,e3);
+    }
+
+    static VectorPtr Create(double e1,double e2,double e3,double e4){
+        return std::make_shared<Vector>(e1,e2,e3,e4);
     }
 
 

@@ -59,6 +59,9 @@ public:
     virtual const std::string whoAmI() const {
         return "Matrix";
     }
+
+    static MatrixPtr fromContainerOfVectors( const std::vector<IVectorPtr> container,bool rowVectors);
+    static std::vector<IVectorPtr> toContainerOfVectors(const IMatrixPtr & matrix, bool rowVectors);
 };
 
 typedef std::shared_ptr<Matrix> MatrixPtr;
