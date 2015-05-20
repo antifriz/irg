@@ -113,7 +113,9 @@ void reshape(int width, int height) {
 void renderScene() {
     glColor3f(0.0f, 0.0f, 0.0f);
     if (popunjavanje)
+    {
         nacrtajPopunjeniPoly();
+    }
     else {
         glBegin(GL_LINE_LOOP);
         {
@@ -150,7 +152,7 @@ void nacrtajPopunjeniPoly() {
                 if (it0->vrh->get(1) == y) {
                     L = it0->vrh->get(0);
                     D = it->vrh->get(0);
-                    //if (L > D) swap(L, D);
+                    if (L > D) swap(L, D);
                     break;
                 }
             } else {
@@ -240,10 +242,8 @@ void myKeyboard(unsigned char theKey, int, int) {
                 }
                 konveksnost = true;
             }
-
             glutPostRedisplay();
             break;
-
         case 'p':
             if (stanje == 1) {
                 popunjavanje ^= 1;
@@ -261,8 +261,6 @@ void myKeyboard(unsigned char theKey, int, int) {
                     break;
                 }
                 stanje = 2;
-
-
             } else {
                 popunjavanje = false;
                 cout << "popunjavanje postavljeno na: " << popunjavanje << endl;

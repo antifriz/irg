@@ -4,4 +4,3 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -g")
 
 project(irg)
 add_subdirectory(labosi)
-
