@@ -13,7 +13,7 @@
 #include "Matrix.hpp"
 
 int MatrixVectorView::getColsCount() const {
-    return this->asRowMatrix ? this->original->getDimension() : 1;
+return this->asRowMatrix ? this->original->getDimension() : 1;
 }
 
 int MatrixVectorView::getRowsCount() const {
@@ -35,7 +35,7 @@ const IMatrixPtr MatrixVectorView::copy() const {
     for (int i = this->original->getDimension() - 1; i >= 0; --i)
         retMatrixPtr->set(i, 0, this->original->get(i));
 
-    return this->asRowMatrix ? retMatrixPtr : retMatrixPtr->nTranspose(false);
+    return !this->asRowMatrix ? retMatrixPtr : retMatrixPtr->nTranspose(false);
 }
 
 const IMatrixPtr MatrixVectorView::newInstance(int rows, int cols) const {

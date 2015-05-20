@@ -43,6 +43,11 @@ public:
         elements.push_back(e3);
         dimension = (int) elements.size();
     }
+    Vector(double e1,double e2,double e3,double e4):Vector(e1,e2,e3)
+    {
+        elements.push_back(e4);
+        dimension = (int) elements.size();
+    }
 
     typedef shared_ptr<Vector> VectorPtr;
 
