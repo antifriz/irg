@@ -6,6 +6,7 @@
 #include <iostream>
 #include <assert.h>
 #include <algorithm>
+#include <IRG.hpp>
 
 #include "Vector.hpp"
 
@@ -19,30 +20,19 @@ using namespace std;
 #define WINDOW_NAME "Program"
 
 
-#define IZVAN -1
-#define RUB 0
-#define UNUTAR 1
-
 int mouse_x = 0, mouse_y = 0;
 
 
-int stanje = 1;
-bool popunjavanje = false;
-bool konveksnost = false;
 
-typedef struct {
-    IVectorPtr vrh;
-    IVectorPtr brid;
-    bool lijevi;
-} polyElemT;
+typedef IVectorPtr Point;
 
-typedef vector<polyElemT> polyT;
-typedef IVectorPtr tocka2dT;
-typedef IVectorPtr brid2dT;
+std::vector<Point> points;
 
-typedef
 
-polyT poly;
+double catchAndMoveOffset = 10;
+Point catchAndMovePoint;
+bool catchAndMoveState = false;
+
 
 
 void display();
@@ -53,23 +43,17 @@ void renderScene();
 
 void myMouse(int, int, int, int);
 
-void myPassive(int x, int y);
+void myMotion(int x, int y);
 
 void myKeyboard(unsigned char, int, int);
 
-void izracunajKoefKonvPoly();
+void renderControlPoly();
 
-int odnosTockeIBrida(tocka2dT& tocka, brid2dT& brid, bool isCw);
+void draw_bezier(std::vector<Point> points,int divs);
 
-int odnosTockeIPoligona(tocka2dT& tocka);
+void renderApproxBezier();
 
-bool isCwPoly();
-
-bool jeKonveksan();
-
-bool zadrzavaKonveksnost(tocka2dT& vrh);
-
-void nacrtajPopunjeniPoly();
+void renderInterBezier();
 
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
@@ -82,7 +66,7 @@ int main(int argc, char *argv[]) {
     glutReshapeFunc(reshape);
     glutKeyboardFunc(myKeyboard);
     glutMouseFunc(myMouse);
-    glutPassiveMotionFunc(myPassive);
+    glutMotionFunc(myMotion);
 
     glutMainLoop();
     return 0;
@@ -90,7 +74,7 @@ int main(int argc, char *argv[]) {
 
 
 void display() {
-    glClearColor(0f, 1.0f, 0f, 1.0f);
+    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
@@ -112,241 +96,112 @@ void reshape(int width, int height) {
 
 
 void renderScene() {
-    glColor3f(1f, 0.0f, 0.0f);
+    renderControlPoly();
+    if(points.size()<3) return;
+
+    renderApproxBezier();
+    renderInterBezier();
+}
+
+void renderInterBezier() {
+    vector<Point> points2 = Bezier::getHomogeneousControlPoints(points);
+    glColor3f(1.0f, 1.0f, 0.0f);
+    draw_bezier(points2, (int) (points2.size()*10));
+}
+
+void renderApproxBezier() {
+    glColor3f(0.0f, 0.0f, 1.0f);
+    draw_bezier(points, (int) (points.size()*10));
+}
+
+void renderControlPoly() {
+    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_STRIP);
     {
-        for (auto& elem: poly)
-            glVertex2i((GLint) elem.vrh->get(0), (GLint) elem.vrh->get(1));
-        if (stanje == 1)glVertex2i(mouse_x, mouse_y);
+        for (auto& point: points)
+            glVertex2i((GLint) point->get(0), (GLint) point->get(1));
     }
     glEnd();
 }
 
-void nacrtajPopunjeniPoly() {
-    if (poly.size() < 3) return;
 
-    bool isCW = isCwPoly();
 
-    double xmin, xmax, ymin, ymax;
 
-    xmin = xmax = poly.front().vrh->get(0);
-    ymin = ymax = poly.front().vrh->get(1);
-    for (auto it = poly.begin() + 1; it < poly.end(); it++) {
-        if (xmin > it->vrh->get(0)) xmin = it->vrh->get(0);
-        if (xmax < it->vrh->get(0)) xmax = it->vrh->get(0);
-        if (ymin > it->vrh->get(1)) ymin = it->vrh->get(1);
-        if (ymax < it->vrh->get(1)) ymax = it->vrh->get(1);
-    }
 
-    for (auto y = ymin; y <= ymax; y++) {
-        auto L = xmin, D = xmax;
-        auto it0 = poly.end() - 1;
-        for (auto it = poly.begin(); it < poly.end(); it++) {
+void draw_bezier(std::vector<Point> points,int divs) {
+    int n = (int) points.size() -1;
+    if(n<1) return;
 
-            if (it0->brid->get(0) == 0) {
-                if (it0->vrh->get(1) == y) {
-                    L = it0->vrh->get(0);
-                    D = it->vrh->get(0);
-                    if (L > D) swap(L, D);
-                    break;
+    std::vector<unsigned long> binomial_coeff =Bezier::getBinomials(n);
+
+
+
+    glBegin(GL_LINE_STRIP);
+    {
+        for (int i = 0; i <= divs; ++i) {
+            double t = 1.0/divs * i;
+            double x =0, y=0;
+            double b;
+            for (int j = 0; j <= n; ++j) {
+
+                if(j==0){
+                    b=binomial_coeff[j]*pow(1-t,n);
                 }
-            } else {
-                auto x = round(-it0->brid->get(1) * y - it0->brid->get(2)) / it0->brid->get(0);
-                ((isCW && it0->lijevi) || (!isCW && !it0->lijevi)) ? (L = max(L, x)) : (D = min(D, x));
-            }
-            it0 = it;
-        }
+                else if(j==n){
+                    b=binomial_coeff[j]*pow(t,n);
+                } else
+                    b=binomial_coeff[j]*pow(t,j)*pow(1-t,n-j);
 
-        glBegin(GL_LINES);
-        {
-            glVertex2d(L, y);
-            glVertex2d(D, y);
+                x +=b*points[j]->get(0);
+                y += b*points[j]->get(1);
+            }
+            glVertex2d(x,y);
         }
-        glEnd();
     }
+    glEnd();
 }
 
-void myMouse(int button, int state, int x, int y) {
 
-    // ako je pritisnuta lijeva tipka misa
+void myMouse(int button, int state, int x, int y) {
     y = WINDOW_H - y;
+    Point currentPoint(new Vector(x,y));
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        tocka2dT vrh = Vector::Create(x, y, 1);
 
-
-        if (stanje == 1) {
-            if (konveksnost && !zadrzavaKonveksnost(vrh)) {
-                cout << "Vrh odbijen, poligon ne bi bio konveksan" << endl;
-                return;
-            }
-
-            polyElemT elem;
-            elem.vrh = vrh;
-            poly.push_back(elem);
-
-            cout << "Dodana tocka: " << x << " " << y << endl;
-
-
-            izracunajKoefKonvPoly();
-
-//            glutPostRedisplay();
-        } else {
-            switch (odnosTockeIPoligona(vrh)) {
-                case UNUTAR:
-                    cout << "Unutar poligona" << endl;
-                    break;
-                case RUB:
-                    cout << "Rub poligona" << endl;
-                    break;
-                case IZVAN:
-                default:
-                    cout << "Izvan poligona" << endl;
-                    break;
-            }
-        }
-
-
+        points.emplace_back(currentPoint);
+        glutPostRedisplay();
     }
         //	Desna tipka - odustani od crtanja.
     else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+        for(Point &point : points){
+            if(point->nSub(currentPoint)->norm() < catchAndMoveOffset){
+                catchAndMovePoint =  point;
+                catchAndMoveState = true;
+                return;
+            };
+        }
     }
-
+    catchAndMoveState = false;
 }
 
-void myPassive(int x, int y) {
-    mouse_x = x;
-    mouse_y = WINDOW_H - y;
+void myMotion(int x, int y) {
+    if(!catchAndMoveState) return;
+
+    y = WINDOW_H - y;
+
+    catchAndMovePoint->set(0,x);
+    catchAndMovePoint->set(1,y);
     glutPostRedisplay();
 }
 
 
 void myKeyboard(unsigned char theKey, int, int) {
     switch (theKey) {
-        case 'k':
-            if (stanje != 1) {
-                cout << "promjena zastavice konveksnost moguca samo u stanju 1" << endl;
-                break;
-            }
-            if (konveksnost) {
-                konveksnost = false;
-            } else {
-                if (!jeKonveksan()) {
-                    cout << "postavljanje konveksnosti na true nije moguce, poligon nije konveksan" << endl;
-                    break;
-                }
-                konveksnost = true;
-            }
-            glutPostRedisplay();
-            break;
-        case 'p':
-            if (stanje == 1) {
-                popunjavanje ^= 1;
-                cout << "popunjavanje postavljeno na: " << popunjavanje << endl;
-            } else {
-                cout << "popunjavanje nije moguce postaviti" << endl;
-                break;
-            }
-            glutPostRedisplay();
-            break;
-        case 'n':
-            if (stanje == 1) {
-                if (poly.size() < 3) {
-                    cout << "potrebne su bar tri tocke za prijelaz u stanje 2" << endl;
-                    break;
-                }
-                stanje = 2;
-            } else {
-                popunjavanje = false;
-                cout << "popunjavanje postavljeno na: " << popunjavanje << endl;
-                konveksnost = false;
-                cout << "konveksnost postavljena na: " << konveksnost << endl;
-                poly.clear();
-                stanje = 1;
-            }
-            cout << "stanje postavljeno na: " << stanje << endl;
+        case 27:
+            points.clear();
             glutPostRedisplay();
             break;
         default:
             break;
     }
-}
-
-
-void izracunajKoefKonvPoly() {
-    auto it0 = poly.end();
-    it0--;
-    for (auto it = poly.begin(); it < poly.end(); it++) {
-        it0->brid = it0->vrh->nVectorProduct(it->vrh);
-        it0->lijevi = it0->vrh->get(1) < it->vrh->get(1);
-        it0 = it;
-    }
-}
-
-
-bool isCwPoly() {
-    //pod pretpostavkom da znamo da je konveksan
-    auto it0 = poly.end() - 1;
-
-    for (auto it = poly.begin(); it < poly.end(); it++) {
-        double sp = it->brid->scalarProduct(it0->vrh);
-        if (sp == 0) continue;
-        return sp < 0;
-    }
-    return true;
-}
-
-
-bool zadrzavaKonveksnost(tocka2dT& vrh) {
-    if (poly.size() < 3) return true;
-
-    bool cw = isCwPoly();
-    if (odnosTockeIBrida(vrh, (poly.end() - 2)->brid, cw) == IZVAN) return false;
-    if (odnosTockeIBrida(vrh, poly.front().brid, cw) == IZVAN) return false;
-    return odnosTockeIBrida(vrh, poly.back().brid, cw) != UNUTAR;
-}
-
-int odnosTockeIBrida(tocka2dT& tocka, brid2dT& brid, bool isCw) {
-    auto sp = tocka->scalarProduct(brid);
-
-    // je li na rubu
-    if (sp == RUB) return RUB;
-
-    // s obzirom na orijentaciju ispitaj je li izvan, ako je izadi
-    return (isCw ? sp > 0 : sp < 0) ? IZVAN : UNUTAR;
-}
-
-
-int odnosTockeIPoligona(tocka2dT& tocka) {
-
-    if (poly.begin() + 1 >= poly.end())
-        return UNUTAR;
-    bool isCw = isCwPoly();
-    bool edge = false;
-    for (auto it = poly.begin(); it < poly.end(); it++) {
-        auto odnos = odnosTockeIBrida(tocka, it->brid, isCw);
-
-        // je li na rubu
-        if (odnos == RUB) {
-            edge = true;
-            continue;
-        }
-        if (odnos == IZVAN) return IZVAN;
-    }
-    return edge ? RUB : UNUTAR;
-}
-
-bool jeKonveksan() {
-    if (poly.size() < 3) return 1;
-    int ispod = 0;
-    int iznad = 0;
-    int n = (int) poly.size();
-
-    int i0 = n - 2;
-    for (int i = 0; i < n; ++i) {
-        if (i0 >= n) i0 = 0;
-        auto r = poly[i0].brid->scalarProduct(poly[i].vrh);
-        if (r < 0) ispod++; else if (r > 0) iznad++;
-    }
-    return iznad == 0 || ispod == 0;
 }
