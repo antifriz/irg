@@ -56,60 +56,8 @@ public:
 };
 
 
-class Triangle;
-
-typedef shared_ptr<Triangle> TrianglePtr;
-
-class Triangle {
-private:
-    vector<VertexPtr> vertices;
-    IVectorPtr normal;
-    double D;
-protected:
-    Triangle() {
-    }
-
-public:
-    virtual Vertex::Relation vertexRelation(VertexPtr vertex) const {
-        auto relation = normal->scalarProduct(vertex) + D;
-        return relation > 0 ? Vertex::Relation::Out : (relation < 0) ? Vertex::Relation::In : Vertex::Relation::Edge;
-    };
-
-
-    static TrianglePtr Create(const VertexPtr& a, const VertexPtr& b, const VertexPtr& c) {
-        TrianglePtr ptr = _Create<Triangle>();
-
-        ptr->vertices.reserve(3);
-        ptr->vertices.push_back(a);
-        ptr->vertices.push_back(b);
-        ptr->vertices.push_back(c);
-
-        ptr->normal = (b->nSub(a))->nVectorProduct(c->nSub(a));
-
-        ptr->D = -(a->scalarProduct(ptr->normal));
-        return ptr;
-    }
-
-    double getPlaneD() const {
-        return D;
-    }
-
-    const IVectorPtr getPlaneNormal() const {
-        return normal;
-    }
-
-    VertexPtr vertexAt(size_t idx) {
-        return vertices.at(idx);
-    }
-
-    const vector<VertexPtr> & getVertices() const{
-        return vertices;
-    }
-};
 
 class Object3D;
-
-typedef shared_ptr<Object3D> Object3DPtr;
 
 class Object3D : public enable_shared_from_this<Object3D> {
 private:
@@ -125,38 +73,33 @@ private:
 #define WINDOW_H 480
 #define WINDOW_NAME "Program"
 
-    static void glutRenderScene(){
+    static void glutRenderScene() {
 
         IMatrixPtr m;
 
-        switch(inacica)
-        {
-            case 3:
-            {
-                auto tp =IRG::lookAtMatrix(IVectorPtr(new Vector(r*cos(angle),4,r*sin(angle))),IVectorPtr(new Vector(0,0,0)),IVectorPtr(new Vector(0,1,0)));
-                auto pr = IRG::buildFrustumMatrix(-0.5f,+0.5f,-0.5f,+0.5f,1,100);
+        switch (inacica) {
+            case 3: {
+                auto tp = IRG::lookAtMatrix(IVectorPtr(new Vector(r * cos(angle), 4, r * sin(angle))),
+                                            IVectorPtr(new Vector(0, 0, 0)), IVectorPtr(new Vector(0, 1, 0)));
+                auto pr = IRG::buildFrustumMatrix(-0.2f, +0.2f, -0.2f, +0.2f, 1, 100);
                 m = tp->nMultiply(pr);
-                //std::cout<<m->toString()<<std::endl;
-
             }
                 break;
             case 1:
             case 2:
                 m = Matrix::parseSimple("1 0 0 0 | 0 1 0 0 | 0 0 1 0 | 0 0 0 1");
-                gluLookAt(3,4,1,0,0,0,0,1,0);
+                gluLookAt(3, 4, 1, 0, 0, 0, 0, 1, 0);
                 break;
             default:
                 throw "Unknown inacica";
         }
 
-        glColor3f(1,0,0);
+        glColor3f(1, 0, 0);
         {
-            for(TrianglePtr face:Object3D::current->faces)
-            {
+            for (TrianglePtr face:Object3D::current->faces) {
                 glBegin(GL_LINE_LOOP);
-                for (VertexPtr vertex0:face->getVertices())
-                {
-                    IVectorPtr vectorPtr(new Vector(vertex0->get(0),vertex0->get(1),vertex0->get(2),1));
+                for (VertexPtr vertex0:face->getVertices()) {
+                    IVectorPtr vectorPtr(new Vector(vertex0->get(0), vertex0->get(1), vertex0->get(2), 1));
                     IVectorPtr a4 = vectorPtr->toRowMatrix(false)->nMultiply(m)->toVector(false)->nFromHomogeneous();
                     glVertex3f((GLfloat) a4->get(0), (GLfloat) a4->get(1), (GLfloat) a4->get(2));
                 }
@@ -168,7 +111,7 @@ private:
 
     static void glutDisplay() {
 
-        glClearColor(0,1,0,0);
+        glClearColor(0, 1, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT);
         glLoadIdentity();
 
@@ -181,12 +124,12 @@ private:
     static void glutKeyboard(unsigned char theKey, int, int) {
         switch (theKey) {
             case 'r':
-                angle +=increment;
+                angle += increment;
                 glutPostRedisplay();
                 break;
 
             case 'l':
-                angle -=increment;
+                angle -= increment;
                 glutPostRedisplay();
                 break;
             case 27:
@@ -203,14 +146,13 @@ private:
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        switch(inacica)
-        {
+        switch (inacica) {
             case 1:
-                glFrustum(-0.5f,+0.5f,-0.5f,+0.5f,1,100);
-            break;
+                glFrustum(-0.5f, +0.5f, -0.5f, +0.5f, 1, 100);
+                break;
             case 2:
                 // tg(fovy)*near == near_y_band
-                gluPerspective((atan(0.5f)*2)*180/M_PI,1,1,100);
+                gluPerspective((atan(0.5f) * 2) * 180 / M_PI, 1, 1, 100);
                 break;
             case 3:
                 break;
@@ -218,7 +160,7 @@ private:
                 throw "Unknown inacica";
         }
         glMatrixMode(GL_MODELVIEW);
-        glViewport(0,0,width,height);
+        glViewport(0, 0, width, height);
 
     }
 
@@ -236,7 +178,7 @@ public:
     static int inacica;
 
 
-    static void glutShow(const Object3DPtr &ptr){
+    static void glutShow(const Object3DPtr &ptr) {
         current = ptr;
 
         int myargc = 0;
@@ -308,7 +250,7 @@ public:
 
     Vertex::Relation convexVertexRelation(VertexPtr vertex) {
         bool isEdge = false;
-        for (auto& face: faces) {
+        for (auto &face: faces) {
             auto relation = face->vertexRelation(vertex);
             if (relation == Vertex::Relation::Out)
                 return Vertex::Relation::Out;
@@ -319,10 +261,11 @@ public:
 
     string dumpOBJ() {
         ostringstream os;
-        for (auto& v: vertices)
+        for (auto &v: vertices)
             os << "v " << v->get(0) << " " << v->get(1) << " " << v->get(2) << endl;
-        for (auto& f: faces)
-            os << "f " << vertexIndex(f->vertexAt(0)) + 1 << " " << vertexIndex(f->vertexAt(1)) + 1 << " " << vertexIndex(f->vertexAt(2)) + 1 << endl;
+        for (auto &f: faces)
+            os << "f " << vertexIndex(f->vertexAt(0)) + 1 << " " << vertexIndex(f->vertexAt(1)) + 1 << " " <<
+            vertexIndex(f->vertexAt(2)) + 1 << endl;
         return os.str();
     };
 
@@ -355,14 +298,11 @@ public:
 
         auto scaleFactor = 2 / max({rangeX, rangeY, rangeZ});
 
-        for (auto& vertex: vertices)
+        for (auto &vertex: vertices)
             vertex->sub(midV)->scalarMultiply(scaleFactor);
         return shared_from_this();
     }
 };
-
-Object3DPtr  Object3D::current = NULL;
-int  Object3D::inacica = 1;
 
 Object3DPtr model;
 

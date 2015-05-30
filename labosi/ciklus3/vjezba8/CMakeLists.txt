@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 project(vjezba8)
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -g")
 
 include_directories("${PROJECT_SOURCE_DIR}/../../linAlgLib")
 

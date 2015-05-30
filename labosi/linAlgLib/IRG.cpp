@@ -50,12 +50,16 @@ IMatrixPtr IRG::lookAtMatrix(IVectorPtr eye,IVectorPtr center,IVectorPtr viewUp)
 IMatrixPtr IRG::buildFrustumMatrix(double l, double r,double b, double t,int n, int f) {
     MatrixPtr m = MatrixPtr(new Matrix(4, 4));
     m->set(0,0,2*n/(r-l));
+
     m->set(1,1,2*n/(t-b));
-    m->set(2,2,-(f+n)/(f-n));
+
     m->set(2,0,(r+l)/(r-l));
-    m->set(3,0,(t+b)/(t-b));
+    m->set(2,1,(t+b)/(t-b));
+    m->set(2,2,-(f+n)/(f-n));
     m->set(2,3,-1);
+
     m->set(3,2,-2*f*n/(f-n));
+
     return m;
 }
 

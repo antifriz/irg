@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(vjezba7)
+project(vjezba11)
 
 include_directories("${PROJECT_SOURCE_DIR}/../../linAlgLib")
 

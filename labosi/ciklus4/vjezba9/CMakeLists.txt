@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
-project(vjezba7)
+project(vjezba9)
 
 include_directories("${PROJECT_SOURCE_DIR}/../../linAlgLib")
 
-add_executable(${PROJECT_NAME}_zadatak1 zadatak1.cpp)
+file(GLOB src
+*.cpp
+)
+
+add_executable(${PROJECT_NAME}_zadatak1 ${src})
 target_link_libraries(${PROJECT_NAME}_zadatak1 LINK_PUBLIC linAlgLib GL GLU glut)

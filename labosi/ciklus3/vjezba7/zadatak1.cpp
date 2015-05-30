@@ -12,6 +12,7 @@
 
 #include "Vector.hpp"
 #include "IRG.hpp"
+#include "Triangle.h"
 
 string getCommand();
 
@@ -123,8 +124,6 @@ public:
 
 class Object3D;
 
-typedef shared_ptr<Object3D> Object3DPtr;
-
 class Object3D : public enable_shared_from_this<Object3D> {
 private:
     static Object3DPtr current;
@@ -149,7 +148,7 @@ private:
             {
                 shared_ptr<IVector> eye = IVectorPtr(new Vector(r*cos(angle),4,r*sin(angle)));
                 auto tp =IRG::lookAtMatrix(eye,IVectorPtr(new Vector(0,0,0)),IVectorPtr(new Vector(0,1,0)));
-                auto pr = IRG::buildFrustumMatrix(-0.5f,+0.5f,-0.5f,+0.5f,1,100);
+                auto pr = IRG::buildFrustumMatrix(-0.2f,+0.2f,-0.2f,+0.2f,1,100);
                 m = tp->nMultiply(pr);
 
                 if(odbacivanje == 2)
@@ -303,6 +302,11 @@ public:
             face->visible = eye->nSub(face->getPolyCenter())->scalarProduct(face->getPlaneNormal())>0;
     }
 
+    static void timer(int value){
+        angle+=0.01;
+        glutPostRedisplay();
+        glutTimerFunc(30,timer,0);
+    }
 
     static void glutShow(const Object3DPtr &ptr){
         current = ptr;
@@ -317,6 +321,8 @@ public:
         glutDisplayFunc(glutDisplay);
         glutReshapeFunc(glutReshape);
         glutKeyboardFunc(glutKeyboard);
+        glutTimerFunc(30,timer,0);
+
 
         glutMainLoop();
     }
@@ -431,10 +437,6 @@ public:
         return shared_from_this();
     }
 };
-
-Object3DPtr  Object3D::current = NULL;
-int  Object3D::inacica = 1;
-int  Object3D::odbacivanje = 1;
 
 Object3DPtr model;
 

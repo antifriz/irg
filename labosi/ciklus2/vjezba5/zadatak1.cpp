@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "Vector.hpp"
+#include "Triangle.h"
 
 string getCommand();
 
@@ -97,8 +98,6 @@ public:
 };
 
 class Object3D;
-
-typedef shared_ptr<Object3D> Object3DPtr;
 
 class Object3D : public enable_shared_from_this<Object3D> {
 private:
