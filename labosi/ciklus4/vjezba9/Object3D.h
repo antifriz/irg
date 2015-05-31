@@ -102,6 +102,8 @@ public:
     static void setConstantShadingColor(IVectorPtr normalizedNormal, IVectorPtr position, IVectorPtr observerPos);
 
     IVectorPtr getNormal(VertexPtr &v);
+
+    static void setupView();
 };
 
 

@@ -173,6 +173,12 @@ std::size_t Object3D::vertexIndex(IVectorPtr vertex) {
 
 void  Object3D::glutReshape(int width, int height) {
 
+    setupView();
+    glViewport(0, 0, width, height);
+
+}
+
+void Object3D::setupView() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     switch (inacica) {
@@ -183,11 +189,9 @@ void  Object3D::glutReshape(int width, int height) {
         case 2:
             break;
         default:
-            throw "Unknown inacica";
+        assert(false);
     }
     glMatrixMode(GL_MODELVIEW);
-    glViewport(0, 0, width, height);
-
 }
 
 void  Object3D::glutKeyboard(unsigned char theKey, int, int) {
@@ -216,10 +220,12 @@ void  Object3D::glutKeyboard(unsigned char theKey, int, int) {
             break;
         case 'i':
             Object3D::inacica = 1;
+            setupView();
             glutPostRedisplay();
             break;
         case 'j':
             Object3D::inacica = 2;
+            setupView();
             glutPostRedisplay();
             break;
         case 27:
@@ -266,7 +272,9 @@ void  Object3D::glutRenderScene() {
             else if (Object3D::odbacivanje == 3)
                 current->determineFaceVisibilities2(eye);
 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POLYGON);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_LIGHTING);
         }
             break;
         case 1:
@@ -409,7 +417,7 @@ void Object3D::setConstantShadingColor(IVectorPtr normalizedNormal, IVectorPtr p
     cout <<diffuse->toString()<<endl;
     cout <<specular->toString()<<endl;*/
     IVectorPtr sumComponent = ambientComponent->nAdd(diffuse->nAdd(specular));
-    cout<<sumComponent->toString()<<endl;
+    //cout<<sumComponent->toString()<<endl;
     glColor3d(sumComponent->get(0), sumComponent->get(1), sumComponent->get(2));
 }
 
