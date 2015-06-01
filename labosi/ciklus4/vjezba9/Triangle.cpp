@@ -21,7 +21,7 @@ void Triangle::recalculatePlaneData() {
     auto && b = vertices[1];
     auto && c = vertices[2];
 
-    this->normal = (b->nSub(a))->nVectorProduct(c->nSub(a));
+    this->normal = (b->nSub(a))->nVectorProduct(c->nSub(a))->normalize();
     this->D = -(a->scalarProduct(this->normal));
 }
 

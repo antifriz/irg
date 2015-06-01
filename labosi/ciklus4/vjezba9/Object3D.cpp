@@ -10,7 +10,7 @@ enum { KonstantnoSjencanje, GouraudovoSjencanje } sjencanje = KonstantnoSjencanj
 bool z_spremnik = true;
 double defaultAngle = 18.4349488 / 180.0 * M_PI;
 double angle = defaultAngle;
-double increment = 0.01;
+double increment = 0.05;
 double r = 3.16227766;
 
 double scale = 0.5f;
@@ -162,6 +162,7 @@ void Object3D::determineFaceVisibilities2(IVectorPtr eye) {
 }
 
 void Object3D::determineFaceVisibilities1(IVectorPtr eye) {
+    //std::cout<<eye->toString()<<std::endl;
     for (shared_ptr<Triangle> &face:faces)
         face->visible = face->getPlaneNormal()->scalarProduct(eye) + face->getPlaneD() > 0;
 }
@@ -256,8 +257,8 @@ Object3DPtr  Object3D::current = NULL;
 int  Object3D::inacica = 1;
 
 void  Object3D::glutRenderScene() {
-    std::cout<<"Inacica: "<<inacica<<endl;
-    std::cout<<"Sjencanje: "<< sjencanje <<endl;
+    //std::cout<<"Inacica: "<<inacica<<endl;
+    //std::cout<<"Sjencanje: "<< sjencanje <<endl;
     IMatrixPtr m;
 
     switch (inacica) {
